@@ -5,21 +5,24 @@ var morgan = require('morgan');
 var bodyParser = require('body-parser');
 var methodOverride = require('method-override');
 var exphbs = require('express-handlebars');
+var http = require('http');
 
 var app = express();
 
+app.use(express.static(__dirname + '/public'));
 app.use(morgan('dev')); // log every request to the console
 app.use(bodyParser.urlencoded({ extended: false })); // parse application/x-www-form-urlencoded
 app.use(bodyParser.json()); // parse application/json
 app.use(methodOverride()); // simulate DELETE and PUT
 
 
+
 // Any routes defined in apiRoutes.js will be mounted to the /api prefix
 app.use('/api', require('./app/apiRoutes.js'));
 
 //  If we don't know the route (ex: '/hello'), then do this
-app.get('*', function(req, res) {
-   res.send("Hi from root path!");
+app.get('/', function(req, res) {
+   res.sendFile("public/views/index.html", {root: __dirname });
 })
 
 
