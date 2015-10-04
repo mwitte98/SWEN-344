@@ -35,13 +35,29 @@
 	</header>
 
 	<form>
-  		Stock Symbol or Name:<br>
+  		Search stocks:<br>
   		<input type="text" name="symbol" ng-model="searchField">
   		<button type="submit" ng-click="searchStocks()">Search</button> 
 	</form>
 
 	<div class="container">
-		<h1>{{stockObjects[0].Symbol}}</h1>
+		<div class='well col-sm-6' ng-repeat='item in stockObjects'>
+			<div class='col-sm-6'>
+				<p>{{item.Symbol}}</p>
+			</div>
+		</div>
 	</div>
+
+	<form>
+  		Get stock quote:<br>
+  		<input type="text" name="symbol" ng-model="queryField">
+  		<button type="submit" ng-click="getStockQuote()">Search</button> 
+	</form>
+
+	<div class="container">
+		<h1>{{stockQuote.LastPrice}}</h1>
+	</div>
+
+
 </body>
 </html>

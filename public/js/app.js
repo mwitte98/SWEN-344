@@ -14,71 +14,39 @@ swenApp.controller('mainCtrl', function($scope, $http) {
     // get is a simple wrapper for request()
     // which sets the http method to GET
     console.log(url);
-    var request = $http.get(url, function (response) {
+    var request = $http.get(url).then(function (response) {
       console.log(response);
       $scope.stockObjects = response;
     });
   };
 
 
-// Pulls up a stock quote given a symbol.
-function getStockQuote(symbol) {
-    var http = require("http");
-        url = "http://dev.markitondemand.com/Api/v2/Quote/json?symbol=" + symbol;
+  // Gets a stock quote given a symbol.
+  $scope.getStockQuote = function(symbol) {
+    url = "http://localhost:8080/api/quote?symbol=" + $scope.queryField;
 
     // get is a simple wrapper for request()
     // which sets the http method to GET
-    var request = http.get(url, function (response) {
-        // data is streamed in chunks from the server
-        // so we have to handle the "data" event    
-        var buffer = "", 
-            data,
-            route;
-
-        response.on("data", function (chunk) {
-            buffer += chunk;
-        }); 
-
-        response.on("end", function (err) {
-            // finished transferring data
-            // dump the raw data
-            console.log("Getting stock quote of '" + symbol + "'...\n")
-            console.log(buffer);
-            console.log("\n");
-            data = JSON.parse(buffer);
-        });
+    console.log(url);
+    var request = $http.get(url).then(function (response) {
+      console.log(response.data);
+      $scope.stockQuote = response.data;
     });
-}
+  }
 
 
-// Gets the required chart data given JSON encoded input parameters.
-function getStockChartData(chartInput) {
-    var http = require("http");
-    url = "http://dev.markitondemand.com/Api/v2/InteractiveChart/json?parameters=" + chartInput;
+  // Gets the required chart data given JSON encoded input parameters.
+  $scope.getStockChartData = function(chartInput) {
+      url = "http://localhost:8080/api/chart?parameters=" + $scope.chartInput;
 
-    // get is a simple wrapper for request()
-    // which sets the http method to GET
-    var request = http.get(url, function (response) {
-        // data is streamed in chunks from the server
-        // so we have to handle the "data" event    
-        var buffer = "", 
-            data,
-            route;
-
-        response.on("data", function (chunk) {
-            buffer += chunk;
-        }); 
-
-        response.on("end", function (err) {
-            // finished transferring data
-            // dump the raw data
-            console.log("Getting chart data...\n")
-            console.log(buffer);
-            console.log("\n");
-            data = JSON.parse(buffer);
-        });
-    });
-}
+      // get is a simple wrapper for request()
+      // which sets the http method to GET
+      console.log(url);
+      var request = $http.get(url).then(function (response) {
+        console.log(response.data);
+        $scope.chartData = response.data;
+      });
+  }
 
   // var client = new Twit({
   //   consumer_key: 'r4cTkfnBkJJjSUTLlOD1EmsuU',
