@@ -68,7 +68,25 @@ privateApiRouter.get('/quote', function(req, res) {
 
 privateApiRouter.get('/chart', function(req, res) {
     console.log(req.query);
-    url = "http://dev.markitondemand.com/Api/v2/InteractiveChart/json?parameters=" + req.query.parameters;
+
+    var chartInput = JSON.stringify({  
+        Normalized: false,
+        NumberOfDays: 5,
+        DataPeriod: "Day",
+        Elements: [
+            {
+                Symbol: req.query.symbol,
+                Type: "price",
+                Params: ["ohlc"] // ohlc, c = close only
+            },
+            {
+                Symbol: req.query.symbol,
+                Type: "volume"
+            }
+        ]
+    });
+
+    url = "http://dev.markitondemand.com/Api/v2/InteractiveChart/json?parameters=" + chartInput;
 
     // get is a simple wrapper for request()
     // which sets the http method to GET

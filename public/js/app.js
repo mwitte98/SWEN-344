@@ -21,30 +21,33 @@ swenApp.controller('mainCtrl', function($scope, $http) {
 
 
   // Gets a stock quote given a symbol.
-  $scope.getStockQuote = function(symbol) {
-    url = "http://localhost:8080/api/quote?symbol=" + $scope.queryField;
+  $scope.getStockQuote = function() {
+    stockQuote($scope.queryField);
+    chartQuote($scope.queryField);
+  }
+
+  stockQuote = function(symbol) {
+    url = "http://localhost:8080/api/quote?symbol=" + symbol;
 
     // get is a simple wrapper for request()
     // which sets the http method to GET
     console.log(url);
     var request = $http.get(url).then(function (response) {
-      console.log(response.data);
+      //console.log(response.data);
       $scope.stockQuote = response.data;
     });
   }
 
+  chartQuote = function(symbol) {
 
-  // Gets the required chart data given JSON encoded input parameters.
-  $scope.getStockChartData = function(chartInput) {
-      url = "http://localhost:8080/api/chart?parameters=" + $scope.chartInput;
-
-      // get is a simple wrapper for request()
-      // which sets the http method to GET
-      console.log(url);
-      var request = $http.get(url).then(function (response) {
-        console.log(response.data);
-        $scope.chartData = response.data;
-      });
+    chartUrl = "http://localhost:8080/api/chart?symbol=" + symbol;
+    console.log("got here");
+    var chartRequest = $http.get(chartUrl).then(function (response) {
+      console.log(response.data);
+      $scope.stockQuoteChart = response.data;
+      console.log($scope.stockQuoteChart);
+    });
+    console.log("got here too");
   }
 
   // var client = new Twit({
