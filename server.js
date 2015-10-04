@@ -9,7 +9,9 @@ var http = require('http');
 
 var app = express();
 
-app.use(express.static(__dirname + '/public'));
+app.set('view engine', 'ejs');
+
+//app.use(express.static(__dirname + '/public'));
 app.use(morgan('dev')); // log every request to the console
 app.use(bodyParser.urlencoded({ extended: false })); // parse application/x-www-form-urlencoded
 app.use(bodyParser.json()); // parse application/json
@@ -22,8 +24,16 @@ app.use('/api', require('./app/apiRoutes.js'));
 
 //  If we don't know the route (ex: '/hello'), then do this
 app.get('/', function(req, res) {
-   res.sendFile("public/views/index.html", {root: __dirname });
-})
+   res.render('index');
+});
+
+app.get('/stocks', function(req, res) {
+    res.render('stocks');
+});
+
+app.get('/calendar', function(req, res) {
+   res.render('calendar'); 
+});
 
 
 // Set to the port to run the server on
