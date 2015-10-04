@@ -1,28 +1,24 @@
-// var Twit = require('twit');
-var swenApp = angular.module('swenApp', []);
+// Stock API calls.
+// Run this file from the command line and type in
+// a stock symbol when prompted..
+// Needs to be hooked up to front end.
+// Run "npm install prompt" if you get an error.
 
-swenApp.controller('mainCtrl', function($scope, $http) {
 
-  $scope.thing = "Home Page";
-  $scope.stocks = "Stocks Page";
-  $scope.calendar = "Calendar Page";
-  searchField = $scope.searchField;
-
-  // Searches for stocks given a symbol or company name.
-  function searchStocks(searchField) {
-        url = "http://dev.markitondemand.com/Api/v2/Lookup/json?input=" + searchField;
+// Searches for stocks given a symbol or company name.
+function searchStocks(symbolOrName) {
+    var http = require("http");
+        url = "http://dev.markitondemand.com/Api/v2/Lookup/json?input=" + symbolOrName;
 
     // get is a simple wrapper for request()
     // which sets the http method to GET
-    console.log(url);
-    var request = $http.get(url, function (response) {
+    var request = http.get(url, function (response) {
         // data is streamed in chunks from the server
         // so we have to handle the "data" event    
         var buffer = "", 
             data,
             route;
 
-        console.log(response);
         response.on("data", function (chunk) {
             buffer += chunk;
         }); 
@@ -33,10 +29,10 @@ swenApp.controller('mainCtrl', function($scope, $http) {
             console.log("Searching for '" + symbolOrName + "'...\n")
             console.log(buffer);
             console.log("\n");
-            $scope.stockObjects = JSON.parse(buffer);
+            data = JSON.parse(buffer);
         }); 
     });
-};
+}
 
 
 // Pulls up a stock quote given a symbol.
@@ -98,19 +94,49 @@ function getStockChartData(chartInput) {
     });
 }
 
-  // var client = new Twit({
-  //   consumer_key: 'r4cTkfnBkJJjSUTLlOD1EmsuU',
-  //   consumer_secret: 'lbcsBYcvwQ78lG6jyRVvt2rvc1nBeo3zMGwsFjh6ZiAvSO3Q7K',
-  //   access_token: '318712270-9QgkxVRxilSkMOMcUr1gNjGCUIIfwIhy6whDDRYq',
-  //   access_token_secret: '5s834WgK6OBkiSY1gaeutaht7bNfvhoNwKG0X3mXa4fn4'
-  // });
-  // 
-  // var stream = client.stream('user');
-  // var tweetList = [];
-  // 
-  // stream.on('tweet', function(tweet) {
-  //   tweetList.push(tweet);
-  //   console.log(tweet.text);
-  // });
+// Prompt for command-line input and display results of API calls:
 
-});
+var prompt = require('prompt');
+
+  var properties = [
+    {
+      name: 'symbol'
+    }
+  ];
+
+  prompt.start();
+
+  prompt.get(properties, function (err, result) {
+    if (err) { return onErr(err); }
+    var tickerSymbol = result.symbol
+
+    searchStocks(tickerSymbol);
+    getStockQuote(tickerSymbol);
+
+    var chartInput = JSON.stringify({  
+        Normalized: false,
+        NumberOfDays: 5,
+        DataPeriod: "Day",
+        Elements: [
+            {
+                Symbol: tickerSymbol,
+                Type: "price",
+                Params: ["ohlc"] // ohlc, c = close only
+            },
+            {
+                Symbol: tickerSymbol,
+                Type: "volume"
+            }
+        ]
+    });
+
+    getStockChartData(chartInput);
+
+  });
+
+
+// Log error if there is one..
+function onErr(err) {
+    console.log(err);
+    return 1;
+}

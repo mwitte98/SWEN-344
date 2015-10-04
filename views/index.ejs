@@ -33,8 +33,15 @@
 			</div>
 		</div>
 	</header>
+
+	<form>
+  		Stock Symbol or Name:<br>
+  		<input type="text" name="symbol" ng-model="searchField">
+  		<button type="submit" ng-click="searchStocks()">Search</button> 
+	</form>
+
 	<div class="container">
-		<h1>{{index}}</h1>
+		<h1>{{stockObjects[0].Symbol}}</h1>
 	</div>
 </body>
 </html>
