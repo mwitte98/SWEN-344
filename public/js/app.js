@@ -6,37 +6,19 @@ swenApp.controller('mainCtrl', function($scope, $http) {
   $scope.thing = "Home Page";
   $scope.stocks = "Stocks Page";
   $scope.calendar = "Calendar Page";
-  searchField = $scope.searchField;
 
   // Searches for stocks given a symbol or company name.
-  function searchStocks(searchField) {
-        url = "http://dev.markitondemand.com/Api/v2/Lookup/json?input=" + searchField;
+  $scope.searchStocks = function(searchField) {
+    url = "http://localhost:8080/api/search?search=" + $scope.searchField;
 
     // get is a simple wrapper for request()
     // which sets the http method to GET
     console.log(url);
     var request = $http.get(url, function (response) {
-        // data is streamed in chunks from the server
-        // so we have to handle the "data" event    
-        var buffer = "", 
-            data,
-            route;
-
-        console.log(response);
-        response.on("data", function (chunk) {
-            buffer += chunk;
-        }); 
-
-        response.on("end", function (err) {
-            // finished transferring data
-            // dump the raw data
-            console.log("Searching for '" + symbolOrName + "'...\n")
-            console.log(buffer);
-            console.log("\n");
-            $scope.stockObjects = JSON.parse(buffer);
-        }); 
+      console.log(response);
+      $scope.stockObjects = response;
     });
-};
+  };
 
 
 // Pulls up a stock quote given a symbol.
