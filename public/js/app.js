@@ -14,10 +14,11 @@ swenApp.controller('mainCtrl', function($scope, $http) {
     // get is a simple wrapper for request()
     // which sets the http method to GET
     console.log(url);
-    var request = $http.get(url, function (response) {
-      console.log(response);
-      $scope.stockObjects = response;
-    });
+    var request = $http.get(url)
+    .then(function(response) {
+      $scope.stockObjects = response.data;
+      console.log($scope.stockObjects);
+    })
   };
 
 
