@@ -1,5 +1,5 @@
 // var Twit = require('twit');
-var swenApp = angular.module('swenApp', []);
+var swenApp = angular.module('swenApp', ["highcharts-ng"]);
 
 swenApp.controller('mainCtrl', function($scope, $http) {
 
@@ -39,15 +39,41 @@ swenApp.controller('mainCtrl', function($scope, $http) {
   }
 
   chartQuote = function(symbol) {
-
-  chartUrl = "http://127.0.0.1:8080/stocks/chart?symbol=" + symbol;
-    console.log("got here");
+    chartUrl = "http://127.0.0.1:8080/stocks/chart?symbol=" + symbol;
     var chartRequest = $http.get(chartUrl).then(function (response) {
-      console.log(response.data);
       $scope.stockQuoteChart = response.data;
-      console.log($scope.stockQuoteChart);
-    });
-    console.log("got here too");
-  }
+
+      console.log(response.data.Elements[0].DataSeries.high.max);
+      console.log(new Date(response.data.Elements[0].DataSeries.high.maxDate).getTime());
+
+      $scope.chartConfig = {
+          options: {
+              chart: {
+                  zoomType: 'x'
+              },
+              rangeSelector: {
+                  enabled: true
+              },
+              navigator: {
+                  enabled: true
+              }
+          },
+          series: [],
+          title: {
+              text: symbol.toUpperCase() + ' stock history'
+          },
+          useHighStocks: true
+      }
+
+      $scope.chartConfig.series.push({
+        id: 1,
+        data: [
+              [new Date(response.data.Dates[0]).getTime(), response.data.Elements[0].DataSeries.high.values[0]],
+              [new Date(response.data.Dates[1]).getTime(), response.data.Elements[0].DataSeries.high.values[1]],
+              [new Date(response.data.Dates[2]).getTime(), response.data.Elements[0].DataSeries.high.values[2]],       
+          ]
+      });
+    })
+  };
 
 });

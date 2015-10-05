@@ -19,6 +19,7 @@ mongoose.connect('mongodb://localhost/user');
 require('./app/config/passport')(passport); // pass passport for configuration
 
 app.use(express.static(__dirname + '/public'));
+app.use('/scripts', express.static(__dirname + '/node_modules/highcharts-ng/dist/'));
 app.use(morgan('dev')); // log every request to the console
 app.use(cookieParser()); // read cookies (needed for auth)
 app.use(bodyParser()); // get information from html forms
