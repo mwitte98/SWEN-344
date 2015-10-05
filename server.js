@@ -1,13 +1,13 @@
-var express  = require('express');
-var app      = express();
-var port     = process.env.PORT || 8080;
+var express = require('express');
+var app = express();
+var port = process.env.PORT || 8080;
 var passport = require('passport');
-var flash    = require('connect-flash');
+var flash = require('connect-flash');
 var mongoose = require('mongoose');
-var morgan       = require('morgan');
+var morgan = require('morgan');
 var cookieParser = require('cookie-parser');
-var bodyParser   = require('body-parser');
-var session      = require('express-session');
+var bodyParser = require('body-parser');
+var session = require('express-session');
 
 var Twit = require('twit');
 
@@ -33,6 +33,7 @@ app.use(flash()); // use connect-flash for flash messages stored in session
 
 require('./app/routes.js')(app, passport, Twit);
 
+app.use('/stocks', require('./app/stockRoutes.js'));
 
 
 //  If we don't know the route (ex: '/hello'), then do this

@@ -9,7 +9,7 @@ swenApp.controller('mainCtrl', function($scope, $http) {
 
   // Searches for stocks given a symbol or company name.
   $scope.searchStocks = function(searchField) {
-    url = "http://localhost:8080/api/search?search=" + $scope.searchField;
+    url = "http://127.0.0.1:8080/stocks/search?search=" + $scope.searchField;
 
     // get is a simple wrapper for request()
     // which sets the http method to GET
@@ -27,7 +27,7 @@ swenApp.controller('mainCtrl', function($scope, $http) {
   }
 
   stockQuote = function(symbol) {
-    url = "http://localhost:8080/api/quote?symbol=" + symbol;
+    url = "http://127.0.0.1:8080/stocks/quote?symbol=" + symbol;
 
     // get is a simple wrapper for request()
     // which sets the http method to GET
@@ -40,7 +40,7 @@ swenApp.controller('mainCtrl', function($scope, $http) {
 
   chartQuote = function(symbol) {
 
-    chartUrl = "http://localhost:8080/api/chart?symbol=" + symbol;
+    chartUrl = "http://127.0.0.1:8080/stocks/chart?symbol=" + symbol;
     console.log("got here");
     var chartRequest = $http.get(chartUrl).then(function (response) {
       console.log(response.data);
@@ -49,20 +49,5 @@ swenApp.controller('mainCtrl', function($scope, $http) {
     });
     console.log("got here too");
   }
-
-  // var client = new Twit({
-  //   consumer_key: 'r4cTkfnBkJJjSUTLlOD1EmsuU',
-  //   consumer_secret: 'lbcsBYcvwQ78lG6jyRVvt2rvc1nBeo3zMGwsFjh6ZiAvSO3Q7K',
-  //   access_token: '318712270-9QgkxVRxilSkMOMcUr1gNjGCUIIfwIhy6whDDRYq',
-  //   access_token_secret: '5s834WgK6OBkiSY1gaeutaht7bNfvhoNwKG0X3mXa4fn4'
-  // });
-  // 
-  // var stream = client.stream('user');
-  // var tweetList = [];
-  // 
-  // stream.on('tweet', function(tweet) {
-  //   tweetList.push(tweet);
-  //   console.log(tweet.text);
-  // });
 
 });
