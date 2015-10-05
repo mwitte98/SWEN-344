@@ -41,11 +41,27 @@ module.exports = function(app, passport, Twit) {
          access_token: user.token,
          access_token_secret: user.tokenSecret
       });
+      
+      var tweets = [];
+      
+      T.get('statuses/home_timeline', { screen_name: user.username, count: 5 },  function (err, data, response) {
+         console.log(data[0].text);
+         console.log(data[1].text);
+         console.log(data[2].text);
+         console.log(data[3].text);
+         console.log(data[4].text);
+         tweets.push(data[0]);
+         tweets.push(data[1]);
+         tweets.push(data[2]);
+         tweets.push(data[3]);
+         tweets.push(data[4]);
+      });
 
       var stream = T.stream('user');
 
       stream.on('tweet', function (tweet) {
-        console.log(tweet)
+        console.log(tweet.text);
+        tweets.push(tweet);
       });
 
    }

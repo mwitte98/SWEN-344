@@ -12,6 +12,7 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+	<title>Main Page</title>
 </head>
 <body ng-controller="mainCtrl">
 	<header class="navbar navbar-default">
@@ -30,13 +31,13 @@
 					<li><a href="/">Home</a></li>
 					<li><a href="/stocks">Stocks</a></li>
 					<li><a href="/calendar">Calendar</a></li>
-					<li><a href="#">Log out</a></li>
+					<li><a href="/logout">Log out</a></li>
 				</ul>
 			</div>
 		</div>
 	</header>
-
-	<h3><a href="/auth/twitter">Login</a></h3>
-
+	<div class="container">
+		<h3><a href="/auth/twitter">Login to Twitter</a></h3>
+	</div>
 </body>
 </html>
