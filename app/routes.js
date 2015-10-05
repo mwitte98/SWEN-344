@@ -31,17 +31,18 @@ module.exports = function(app, passport, Twit) {
        // if they aren't redirect them to the home page
        res.redirect('/');
    }
+   
+   var T;
+   var tweets = [];
 
    function initTwitterStream(user) {
 
-      var T = new Twit({
+      T = new Twit({
          consumer_key: configAuth.twitterAuth.consumerKey,
          consumer_secret: configAuth.twitterAuth.consumerSecret,
          access_token: user.token,
          access_token_secret: user.tokenSecret
       });
-      
-      var tweets = [];
       
       T.get('statuses/home_timeline', { screen_name: user.username, count: 5 },  function (err, data, response) {
          console.log(data[0].text);
@@ -49,21 +50,35 @@ module.exports = function(app, passport, Twit) {
          console.log(data[2].text);
          console.log(data[3].text);
          console.log(data[4].text);
-         tweets.push(data[0]);
-         tweets.push(data[1]);
-         tweets.push(data[2]);
-         tweets.push(data[3]);
-         tweets.push(data[4]);
+         getOEmbed(data[0]);
+         getOEmbed(data[1]);
+         getOEmbed(data[2]);
+         getOEmbed(data[3]);
+         getOEmbed(data[4]);
       });
 
       var stream = T.stream('user');
 
       stream.on('tweet', function (tweet) {
         console.log(tweet.text);
-        tweets.push(tweet);
+        getOEmbed(tweet);
       });
 
    }
 
+   function getOEmbed (tweet) {
+
+    // oEmbed request params
+    var params = {
+      "id": tweet.id_str,
+      "hide_thread": true
+    };
+
+    // request data 
+    T.get('statuses/oembed', params, function (err, data, resp) {
+      tweet.oEmbed = data;
+      tweets.push(tweet);
+    });
+  }
 
 }
