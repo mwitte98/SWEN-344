@@ -1,8 +1,6 @@
 // var Twit = require('twit');
-<<<<<<< Updated upstream
-var swenApp = angular.module('swenApp', ["highcharts-ng"]);
-=======
-var swenApp = angular.module('swenApp', ['ngSanitize']);
+
+var swenApp = angular.module('swenApp', ['ngSanitize', 'highcharts-ng']);
 
 swenApp.controller('homeCtrl', function($scope, $http) {
 
@@ -29,7 +27,6 @@ swenApp.controller('homeCtrl', function($scope, $http) {
    init();
 
 });
->>>>>>> Stashed changes
 
 swenApp.controller('mainCtrl', function($scope, $http) {
 
@@ -101,7 +98,7 @@ swenApp.controller('mainCtrl', function($scope, $http) {
         data: [
               [new Date(response.data.Dates[0]).getTime(), response.data.Elements[0].DataSeries.high.values[0]],
               [new Date(response.data.Dates[1]).getTime(), response.data.Elements[0].DataSeries.high.values[1]],
-              [new Date(response.data.Dates[2]).getTime(), response.data.Elements[0].DataSeries.high.values[2]],       
+              [new Date(response.data.Dates[2]).getTime(), response.data.Elements[0].DataSeries.high.values[2]],
           ]
       });
     })
