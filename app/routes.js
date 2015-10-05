@@ -32,7 +32,6 @@ module.exports = function(app, passport, Twit) {
        res.redirect('/');
    }
 
-
    function initTwitterStream(user) {
 
       var T = new Twit({

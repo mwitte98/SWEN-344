@@ -9,7 +9,7 @@ swenApp.controller('mainCtrl', function($scope, $http) {
 
   // Searches for stocks given a symbol or company name.
   $scope.searchStocks = function(searchField) {
-    url = "http://127.0.0.1:8080/api/search?search=" + $scope.searchField;
+  url = "http://127.0.0.1:8080/stocks/search?search=" + $scope.searchField;
 
     // get is a simple wrapper for request()
     // which sets the http method to GET
@@ -27,7 +27,7 @@ swenApp.controller('mainCtrl', function($scope, $http) {
   }
 
   stockQuote = function(symbol) {
-    url = "http://127.0.0.1:8080/api/quote?symbol=" + symbol;
+  url = "http://127.0.0.1:8080/stocks/quote?symbol=" + symbol;
 
     // get is a simple wrapper for request()
     // which sets the http method to GET
@@ -40,7 +40,7 @@ swenApp.controller('mainCtrl', function($scope, $http) {
 
   chartQuote = function(symbol) {
 
-    chartUrl = "http://127.0.0.1:8080/api/chart?symbol=" + symbol;
+  chartUrl = "http://127.0.0.1:8080/stocks/chart?symbol=" + symbol;
     console.log("got here");
     var chartRequest = $http.get(chartUrl).then(function (response) {
       console.log(response.data);
