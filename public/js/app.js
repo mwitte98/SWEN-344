@@ -1,11 +1,42 @@
 // var Twit = require('twit');
+<<<<<<< Updated upstream
 var swenApp = angular.module('swenApp', ["highcharts-ng"]);
+=======
+var swenApp = angular.module('swenApp', ['ngSanitize']);
+
+swenApp.controller('homeCtrl', function($scope, $http) {
+
+   init = function() {
+      getTweets();
+  }
+
+   // Searches for stocks given a symbol or company name.
+   getTweets = function() {
+
+      console.log("Call getTweets");
+
+       url = "http://127.0.0.1:8080/twitter/tweets/";
+
+       // get is a simple wrapper for request()
+       // which sets the http method to GET
+       var request = $http.get(url)
+          .then(function(response) {
+          $scope.tweets = response.data;
+       });
+
+   };
+
+   init();
+
+});
+>>>>>>> Stashed changes
 
 swenApp.controller('mainCtrl', function($scope, $http) {
 
   $scope.thing = "Home Page";
   $scope.stocks = "Stocks Page";
   $scope.calendar = "Calendar Page";
+
 
   // Searches for stocks given a symbol or company name.
   $scope.searchStocks = function(searchField) {
