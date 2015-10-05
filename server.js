@@ -33,21 +33,10 @@ app.use(flash()); // use connect-flash for flash messages stored in session
 
 require('./app/routes.js')(app, passport, Twit);
 
+// PRIVATE API routes
 app.use('/stocks', require('./app/stockRoutes.js'));
+app.use('/calendar', require('./app/calendarRoutes.js'));
 
-
-//  If we don't know the route (ex: '/hello'), then do this
-app.get('/', function(req, res) {
-   res.render('index');
-});
-
-app.get('/stocks', function(req, res) {
-    res.render('stocks');
-});
-
-app.get('/calendar', function(req, res) {
-   res.render('calendar');
-});
 
 
 // START SERVER

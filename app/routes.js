@@ -2,15 +2,14 @@ module.exports = function(app, passport, Twit) {
 
    var configAuth = require('../app/config/auth.js');
 
-   app.get('/', function(req, res) {
-      res.render('index.ejs'); // load the index.ejs file
+   app.get('/login', function(req, res) {
+      res.render('login');
    });
 
-   app.get('/profile', isLoggedIn, function(req, res) {
-      res.render('profile.ejs', {user : req.user}); // get the user out of session and pass to template
+   app.get('/', isLoggedIn, function(req, res) {
+      res.render('index.ejs', {user : req.user}); // get the user out of session and pass to template
 
       initTwitterStream(req.user);
-
    });
 
    app.get('/logout', function(req, res) {
@@ -19,7 +18,7 @@ module.exports = function(app, passport, Twit) {
    });
 
    app.get('/auth/twitter', passport.authenticate('twitter'));
-   app.get('/auth/twitter/callback', passport.authenticate('twitter', {successRedirect : '/profile', failureRedirect : '/'}) );
+   app.get('/auth/twitter/callback', passport.authenticate('twitter', {successRedirect : '/', failureRedirect : '/login'}) );
 
    function isLoggedIn(req, res, next) {
 
@@ -28,8 +27,8 @@ module.exports = function(app, passport, Twit) {
            return next();
        }
 
-       // if they aren't redirect them to the home page
-       res.redirect('/');
+       // if they aren't redirect them to the login page
+       res.redirect('/login');
    }
    
    var T;
