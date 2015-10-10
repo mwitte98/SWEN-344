@@ -20,66 +20,68 @@ module.exports = function(app, passport, Twit) {
 
    function isLoggedIn(req, res, next) {
 
-       // if user is authenticated in the session, carry on
-       if (req.isAuthenticated()) {
-           return next();
-       }
+      // if user is authenticated in the session, carry on
+      if (req.isAuthenticated()) {
+         return next();
+      }
 
-       // if they aren't redirect them to the login page
-       res.redirect('/login');
+      // if they aren't redirect them to the login page
+      res.redirect('/login');
    }
 
 
-   var Twitter;
+   var Twitter = null;
    var tweetsArray = [];
    var tweets = [];
 
    app.get('/twitter/tweets', function(req, res) {
 
-      if( tweetsArray.length != 0 ) {
-         res.send(tweetsArray);
-      }
-      else {
-
+      if (Twitter == null) {
          Twitter = new Twit({
             consumer_key: configAuth.twitterAuth.consumerKey,
             consumer_secret: configAuth.twitterAuth.consumerSecret,
             access_token: req.user.token,
             access_token_secret: req.user.tokenSecret
          });
+      }
+      else {
+         tweetsArray = [];
+         tweets = [];
+      }
 
-         Twitter.get('statuses/home_timeline', { screen_name: req.user.username, count: 20 },  function(err, data, response) {
+         
 
-            tweets = data;
+      Twitter.get('statuses/home_timeline', { screen_name: req.user.username, count: 20 },  function(err, data, response) {
 
-            tweets.forEach(function(tweet) {
-               //console.log(tweet.text);
-               getOEmbed(tweet);
-            });
+         tweets = data;
 
+         tweets.forEach(function(tweet) {
+            //console.log(tweet.text);
+            getOEmbed(tweet);
          });
 
-         function getOEmbed(tweet) {
+      });
 
-            // oEmbed request params
-            var params = {
-               "id": tweet.id_str,
-               "hide_thread": true
-            };
+      function getOEmbed(tweet) {
 
-            // request data
-            Twitter.get('statuses/oembed', params, function (err, data, resp) {
-               tweet.oEmbed = data;
-               tweetsArray.push(tweet);
-               if( tweetsArray.length == tweets.length ) {
-                  //console.log(tweetsArray);
-                  res.send(tweetsArray);
-               }
-            });
+         // oEmbed request params
+         var params = {
+            "id": tweet.id_str,
+            "hide_thread": true
+         };
 
-         } // end getOEmbed
+         // request data
+         Twitter.get('statuses/oembed', params, function (err, data, resp) {
+            tweet.oEmbed = data;
+            tweetsArray.push(tweet);
+            //console.log(tweet);
+            if( tweetsArray.length == tweets.length ) {
+               //console.log(tweetsArray);
+               res.send(tweetsArray);
+            }
+         });
 
-      }
+      } // end getOEmbed
 
 
    });

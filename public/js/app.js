@@ -1,8 +1,8 @@
 // var Twit = require('twit');
 
-var swenApp = angular.module('swenApp', ['ngSanitize', 'highcharts-ng']);
+var swenApp = angular.module('swenApp', ['ngResource', 'ngSanitize', 'highcharts-ng']);
 
-swenApp.controller('homeCtrl', function($scope, $http) {
+swenApp.controller('homeCtrl', function($scope, $resource, $timeout) {
 
    init = function() {
       getTweets();
@@ -11,15 +11,20 @@ swenApp.controller('homeCtrl', function($scope, $http) {
    // Searches for stocks given a symbol or company name.
    getTweets = function() {
 
-      console.log("Call getTweets");
+       console.log("Call getTweets");
+       
+       $scope.tweets = $resource('/twitter/tweets', {});
+       
+       $scope.tweetsResult = [];
 
-       url = "http://127.0.0.1:8080/twitter/tweets/";
+       $scope.tweets.query( { }, function (res) {
 
-       // get is a simple wrapper for request()
-       // which sets the http method to GET
-       var request = $http.get(url)
-          .then(function(response) {
-          $scope.tweets = response.data;
+           $scope.tweetsResult = $scope.tweetsResult.concat(res);
+    
+           // render tweets with widgets.js
+           $timeout(function () {
+               twttr.widgets.load();
+           }, 30);
        });
 
    };
@@ -30,14 +35,9 @@ swenApp.controller('homeCtrl', function($scope, $http) {
 
 swenApp.controller('mainCtrl', function($scope, $http) {
 
-  $scope.thing = "Home Page";
-  $scope.stocks = "Stocks Page";
-  $scope.calendar = "Calendar Page";
-
-
   // Searches for stocks given a symbol or company name.
   $scope.searchStocks = function(searchField) {
-  url = "http://127.0.0.1:8080/stocks/search?search=" + $scope.searchField;
+  url = "/stocks/search?search=" + $scope.searchField;
 
     // get is a simple wrapper for request()
     // which sets the http method to GET
@@ -55,7 +55,7 @@ swenApp.controller('mainCtrl', function($scope, $http) {
   }
 
   stockQuote = function(symbol) {
-  url = "http://127.0.0.1:8080/stocks/quote?symbol=" + symbol;
+  url = "/stocks/quote?symbol=" + symbol;
 
     // get is a simple wrapper for request()
     // which sets the http method to GET
@@ -67,7 +67,7 @@ swenApp.controller('mainCtrl', function($scope, $http) {
   }
 
   chartQuote = function(symbol) {
-    chartUrl = "http://127.0.0.1:8080/stocks/chart?symbol=" + symbol;
+    chartUrl = "/stocks/chart?symbol=" + symbol;
     var chartRequest = $http.get(chartUrl).then(function (response) {
       $scope.stockQuoteChart = response.data;
 
