@@ -1,6 +1,6 @@
 // var Twit = require('twit');
 
-var swenApp = angular.module('swenApp', ['ngResource', 'ngSanitize', 'highcharts-ng']);
+var swenApp = angular.module('swenApp', ['ngResource', 'ngSanitize', 'infinite-scroll', 'highcharts-ng']);
 
 swenApp.controller('homeCtrl', function($scope, $resource, $timeout) {
 

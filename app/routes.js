@@ -49,8 +49,6 @@ module.exports = function(app, passport, Twit) {
          tweets = [];
       }
 
-         
-
       Twitter.get('statuses/home_timeline', { screen_name: req.user.username, count: 20 },  function(err, data, response) {
 
          tweets = data;
@@ -66,8 +64,7 @@ module.exports = function(app, passport, Twit) {
 
          // oEmbed request params
          var params = {
-            "id": tweet.id_str,
-            "hide_thread": true
+            "id": tweet.id_str
          };
 
          // request data
