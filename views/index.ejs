@@ -83,10 +83,10 @@
 			<h2>Hey, <%= user.username %></h2>
 		</div>
 
-		<div infinite-scroll="myPagingFunction()" infinite-scroll-distance="3">
+		<div infinite-scroll="getTweets()" infinite-scroll-distance="3" infinite-scroll-disabled="infiniteScrolling">
 			<div class="row">
 				<div class="col-md-4 col-md-offset-4">
-					<div ng-repeat="tweet in tweetsResult | orderBy: '-id'">
+					<div ng-repeat="tweet in tweetsToShow | orderBy: '-id'">
 						<div ng-bind-html="tweet.oEmbed.html"></div>
 					</div>
 				</div>
