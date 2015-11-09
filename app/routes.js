@@ -48,7 +48,7 @@ module.exports = function(app, passport, Twit) {
             tweetsArray = [];
             tweets = [];
         }
-      
+
         Twitter.get('statuses/home_timeline', {count: 200},  function(err, data, response) {
             tweets = data;
             if (tweets.length == 0) {
