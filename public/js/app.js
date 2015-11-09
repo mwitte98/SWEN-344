@@ -7,9 +7,9 @@ swenApp.controller('homeCtrl', function($scope, $http, $timeout) {
     var tweets = [];
     $scope.tweetsToShow = [];
     $scope.infiniteScrolling = false;
-    
+
     $scope.getTweets = function() {
-        
+
         if (busy)
         {
             console.log("Returning from busy");
@@ -25,7 +25,7 @@ swenApp.controller('homeCtrl', function($scope, $http, $timeout) {
                 var request = $http.get(url).then(function (response) {
                     tweets = tweets.concat(response.data);
                     busy = false;
-                    
+
                     if (tweets == null) {
                         console.log("No tweets returned");
                         return;
@@ -60,7 +60,7 @@ swenApp.controller('homeCtrl', function($scope, $http, $timeout) {
                 };
                 console.log("*SHOW TWEETS* tweetsToShow length: " + $scope.tweetsToShow.length);
             }
-            
+
             // render tweets with widgets.js
             $timeout(function() {
                 twttr.widgets.load();
@@ -70,68 +70,69 @@ swenApp.controller('homeCtrl', function($scope, $http, $timeout) {
 
 });
 
-swenApp.controller('mainCtrl', function($scope, $http) {
+swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO "stockCtrl" FOR PRODUCTION ***
 
-    // Searches for stocks given a symbol or company name.
-    $scope.searchStocks = function(searchField) {
-        url = "/stocks/search?search=" + $scope.searchField;
-    
-        var request = $http.get(url).then(function(response) {
-            $scope.stockObjects = response.data;
-        });
-    }
-  
-    // Gets a stock quote given a symbol.
-    $scope.getStockQuote = function() {
-        stockQuote($scope.queryField);
-        chartQuote($scope.queryField);
-    }
-  
-    stockQuote = function(symbol) {
-        url = "/stocks/quote?symbol=" + symbol;
-    
-        var request = $http.get(url).then(function (response) {
-            $scope.stockQuote = response.data;
-        });
-    }
-  
-    chartQuote = function(symbol) {
-        chartUrl = "/stocks/chart?symbol=" + symbol;
-        
-        var chartRequest = $http.get(chartUrl).then(function (response) {
-            $scope.stockQuoteChart = response.data;
-      
-            console.log(response.data.Elements[0].DataSeries.high.max);
-            console.log(new Date(response.data.Elements[0].DataSeries.high.maxDate).getTime());
-      
-            $scope.chartConfig = {
-                options: {
-                    chart: {
-                        zoomType: 'x'
-                    },
-                    rangeSelector: {
-                        enabled: true
-                    },
-                    navigator: {
-                        enabled: true
-                    }
-                },
-                series: [],
-                title: {
-                    text: symbol.toUpperCase() + ' stock history'
-                },
-                useHighStocks: true
-            }
-      
-            $scope.chartConfig.series.push({
-                id: 1,
-                data: [
-                      [new Date(response.data.Dates[0]).getTime(), response.data.Elements[0].DataSeries.high.values[0]],
-                      [new Date(response.data.Dates[1]).getTime(), response.data.Elements[0].DataSeries.high.values[1]],
-                      [new Date(response.data.Dates[2]).getTime(), response.data.Elements[0].DataSeries.high.values[2]],
-                ]
-            });
-        });
-    }
+   // Gets a stock quote given a symbol and displays a graphical representation
+   $scope.getStockQuote = function() {
+      getStockQuote($scope.searchField);
+      getChartQuote($scope.searchField);
+   }
+
+   function getStockQuote(symbol) {
+
+      var quoteUrl = "/stocks/quote?symbol=" + symbol;
+
+      // get is a simple wrapper for request()
+      // which sets the http method to GET
+      var request = $http.get(quoteUrl).then(function (response) {
+         $scope.stockQuote = response.data;
+      });
+
+   }
+
+  function getChartQuote(symbol) {
+
+    var chartUrl = "/stocks/chart?symbol=" + symbol;
+
+    var chartRequest = $http.get(chartUrl).then( function(response) {
+
+      $scope.stockQuoteChart = response.data;
+
+      console.log(response.data.Elements[0].DataSeries.high.max);
+      console.log(new Date(response.data.Elements[0].DataSeries.high.maxDate).getTime());
+
+      $scope.chartConfig = {
+          options: {
+              chart: {
+                  zoomType: 'x'
+              },
+              rangeSelector: {
+                  enabled: true
+              },
+              navigator: {
+                  enabled: true
+              }
+          },
+          series: [],
+          title: {
+              text: null
+          },
+          useHighStocks: true
+      }
+
+      var chartData = [];
+
+      for( var i = 0; i < response.data.Dates.length; i++ ) {
+         chartData[i] = [new Date(response.data.Dates[i]).getTime(), response.data.Elements[0].DataSeries.high.values[i]];
+      }
+
+      $scope.chartConfig.series.push({
+        id: 1,
+        data: chartData
+      });
+
+   });
+
+  }
 
 });

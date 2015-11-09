@@ -2,25 +2,21 @@
 <html ng-app='swenApp'>
 <head>
 
-   <meta charset="utf-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1">
-   <script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.3.3/angular.js"></script>
-   <script src="http://code.jquery.com/jquery-1.11.3.js"></script>
-   <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+   <% include header %>
+
+   <!-- Stock Scripts -->
    <script src="https://code.highcharts.com/stock/highstock.src.js"></script>
-   <script src = "js/highcharts.js"></script>
-   <script src="/scripts/highcharts-ng.js"></script>
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.7/angular-sanitize.min.js"></script>
-   <script src="js/app.js"></script>
-   <link rel="stylesheet" href="css/style.css">
-   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
-   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+   <!-- <script src = "js/highcharts.js"></script> --> <!-- THIS IS INCLUDED IN 'highcharts-ng' AND FIXES THE ERROR OF MULTIPLE NAMESPACES -->
+
+   <!-- Typeahead Script -->
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
 
 	<title>Stocks</title>
 
 </head>
-<body ng-controller="mainCtrl">
+
+<body id="mainCtrl" ng-controller="mainCtrl">
+
     <header class="navbar navbar-inverse">
         <div class="container">
             <div class="navbar-header">
@@ -46,28 +42,8 @@
     <div class="container">
 
        <form style="margin-left:50px;">
-             Search stocks:<br>
-             <input type="text" name="symbol" ng-model="searchField" id="searchField">
-             <button type="submit" ng-click="searchStocks()">Search</button>
-       </form>
-
-       <div class="container" style="margin-top:20px;">
-           <div class='well col-sm-6' ng-repeat='item in stockObjects'>
-               <div class='col-sm-6'>
-                   <p><b>Name: </b>{{item.Name}}</p>
-               </div>
-               <div class='col-sm-6'>
-                   <p><b>Symbol: </b>{{item.Symbol}}</p>
-               </div>
-               <div class='col-sm-6'>
-                   <p><b>Exchange: </b>{{item.Exchange}}</p>
-               </div>
-           </div>
-       </div>
-
-       <form style="margin-left:50px;">
-             Get stock quote:<br>
-             <input type="text" name="symbol" ng-model="queryField" id="queryField">
+             Search:<br/>
+             <input type="text" class="typeahead" name="symbol" ng-model="searchField" id="searchField">
              <button type="submit" ng-click="getStockQuote()">Search</button>
        </form>
 
@@ -88,11 +64,48 @@
            </div>
        </div>
 
-       <div class='row col-sm-8'>
+       <div class='row col-sm-8' ng-show="chartConfig">
            <highchart id="chart1" config="chartConfig"></highchart>
        </div>
 
     </div>
+
+    <!-- Typeahead Functionality -->
+    <script>
+
+      $('.typeahead').typeahead({minLength: 4, highlight: true, hint: true}, {
+         name: 'stock-names',
+         async: true,
+         templates: {
+            suggestion: function(data) {
+               return '<p><strong>' + data["Name"] + '</strong> - ' + data["Symbol"] + '</p>';
+            }
+         },
+         display: function(data) {
+            return data["Symbol"];
+         },
+
+         source: function(query, syncResults, asyncResults) {
+            return $.ajax({
+               url: "/stocks/search", // CONSIDER MAKING A DIRECT CALL TO THE MARKIT API -> JSONP INSTEAD OF JSON
+               type: 'GET',
+               data: {search: query},
+               dataType: 'json',
+               success: function (json) { // THIS MAY THROW AN ERROR IF TOO MANY REQS ARE MADE PER SECOND
+                  console.log("AJAX Res: " + json);
+                  return asyncResults(json);
+               }
+            });
+         }
+      });
+
+      $('.typeahead').bind('typeahead:select', function(ev, suggestion) {
+         console.log('Selection: ' + suggestion["Symbol"]);
+         // Angular needs to be kept up to date, so when the user presses enter to select a suggestion, set the scope var to reflect this
+         angular.element(document.getElementById('mainCtrl')).scope().searchField = suggestion["Symbol"];
+      });
+
+    </script>
 
 </body>
 </html>
