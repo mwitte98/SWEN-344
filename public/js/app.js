@@ -12,15 +12,15 @@ swenApp.controller('homeCtrl', function($scope, $resource, $timeout) {
    getTweets = function() {
 
        console.log("Call getTweets");
-       
+
        $scope.tweets = $resource('/twitter/tweets', {});
-       
+
        $scope.tweetsResult = [];
 
        $scope.tweets.query( { }, function (res) {
 
            $scope.tweetsResult = $scope.tweetsResult.concat(res);
-    
+
            // render tweets with widgets.js
            $timeout(function () {
                twttr.widgets.load();
@@ -33,42 +33,32 @@ swenApp.controller('homeCtrl', function($scope, $resource, $timeout) {
 
 });
 
-swenApp.controller('mainCtrl', function($scope, $http) {
+swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO "stockCtrl" FOR PRODUCTION ***
 
-  // Searches for stocks given a symbol or company name.
-  $scope.searchStocks = function(searchField) {
-  url = "/stocks/search?search=" + $scope.searchField;
+   // Gets a stock quote given a symbol and displays a graphical representation
+   $scope.getStockQuote = function() {
+      getStockQuote($scope.searchField);
+      getChartQuote($scope.searchField);
+   }
 
-    // get is a simple wrapper for request()
-    // which sets the http method to GET
-    var request = $http.get(url)
-    .then(function(response) {
-      $scope.stockObjects = response.data;
-    })
-  };
+   function getStockQuote(symbol) {
 
+      var quoteUrl = "/stocks/quote?symbol=" + symbol;
 
-  // Gets a stock quote given a symbol.
-  $scope.getStockQuote = function() {
-    stockQuote($scope.queryField);
-    chartQuote($scope.queryField);
-  }
+      // get is a simple wrapper for request()
+      // which sets the http method to GET
+      var request = $http.get(quoteUrl).then(function (response) {
+         $scope.stockQuote = response.data;
+      });
 
-  stockQuote = function(symbol) {
-  url = "/stocks/quote?symbol=" + symbol;
+   }
 
-    // get is a simple wrapper for request()
-    // which sets the http method to GET
-    console.log(url);
-    var request = $http.get(url).then(function (response) {
-      //console.log(response.data);
-      $scope.stockQuote = response.data;
-    });
-  }
+  function getChartQuote(symbol) {
 
-  chartQuote = function(symbol) {
-    chartUrl = "/stocks/chart?symbol=" + symbol;
-    var chartRequest = $http.get(chartUrl).then(function (response) {
+    var chartUrl = "/stocks/chart?symbol=" + symbol;
+
+    var chartRequest = $http.get(chartUrl).then( function(response) {
+
       $scope.stockQuoteChart = response.data;
 
       console.log(response.data.Elements[0].DataSeries.high.max);
@@ -88,20 +78,24 @@ swenApp.controller('mainCtrl', function($scope, $http) {
           },
           series: [],
           title: {
-              text: symbol.toUpperCase() + ' stock history'
+              text: null
           },
           useHighStocks: true
       }
 
+      var chartData = [];
+
+      for( var i = 0; i < response.data.Dates.length; i++ ) {
+         chartData[i] = [new Date(response.data.Dates[i]).getTime(), response.data.Elements[0].DataSeries.high.values[i]];
+      }
+
       $scope.chartConfig.series.push({
         id: 1,
-        data: [
-              [new Date(response.data.Dates[0]).getTime(), response.data.Elements[0].DataSeries.high.values[0]],
-              [new Date(response.data.Dates[1]).getTime(), response.data.Elements[0].DataSeries.high.values[1]],
-              [new Date(response.data.Dates[2]).getTime(), response.data.Elements[0].DataSeries.high.values[2]],
-          ]
+        data: chartData
       });
-    })
-  };
+
+   });
+
+  }
 
 });
