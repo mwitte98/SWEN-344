@@ -34,7 +34,7 @@ module.exports = function(app, passport, Twit) {
     var tweetsArray = [];
     var tweets = [];
 
-    app.get('/twitter/tweets/:max_id', function(req, res) {
+    app.get('/twitter/tweets', function(req, res) {
 
         if (Twitter == null) {
             Twitter = new Twit({
@@ -49,15 +49,7 @@ module.exports = function(app, passport, Twit) {
             tweets = [];
         }
       
-        var params = {
-            count: 200
-        };
-      
-        if (req.params.max_id != 0) {
-            params.max_id = parseInt(req.params.max_id, 10);
-        };
-
-        Twitter.get('statuses/home_timeline', params,  function(err, data, response) {
+        Twitter.get('statuses/home_timeline', {count: 200},  function(err, data, response) {
             tweets = data;
             if (tweets.length == 0) {
                 res.send(null);

@@ -2,10 +2,8 @@ var swenApp = angular.module('swenApp', ['ngResource', 'ngSanitize', 'infinite-s
 
 swenApp.controller('homeCtrl', function($scope, $http, $timeout) {
 
-    var numPulled = 0;
     var numToShow = 0;
     var busy = false;
-    var max_id = 0;
     var tweets = [];
     $scope.tweetsToShow = [];
     $scope.infiniteScrolling = false;
@@ -22,24 +20,8 @@ swenApp.controller('homeCtrl', function($scope, $http, $timeout) {
             var tweetsShowing = numToShow;
             numToShow += 20;
             
-            if (numPulled >= 800 && numToShow >= tweets.length)
-            {
-                $scope.infiniteScrolling = true;
-                console.log("Turning off infinite scrolling. numPulled: " + numPulled);
-                for(var i = tweetsShowing; i < tweets.length; i++) {
-                    $scope.tweetsToShow.push(tweets[i]);
-                };
-                console.log("*800 PULLED* tweetsToShow length: " + $scope.tweetsToShow.length);
-            }
-            else if (numToShow >= tweets.length)
-            {
-                if (max_id == null) {
-                    console.log("max_id is null");
-                    return;
-                }
-                busy = true;
-                var url = "/twitter/tweets/" + max_id.toString();
-                max_id = null;
+            if ($scope.tweetsToShow.length == 0) {
+                var url = "/twitter/tweets";
                 var request = $http.get(url).then(function (response) {
                     tweets = tweets.concat(response.data);
                     busy = false;
@@ -48,15 +30,12 @@ swenApp.controller('homeCtrl', function($scope, $http, $timeout) {
                         console.log("No tweets returned");
                         return;
                     }
-                    numPulled += 200; //we pull 200 tweets at a time
                     
                     // sort tweets highest id (newest) to lowest id (oldest)
                     tweets.sort(function(a, b)
                     {
                         return b.id - a.id;
                     });
-                    
-                    max_id = tweets[tweets.length-1].id - 1; //twitter uses max_id inclusively
                     
                     $timeout(function() {
                         for(var i = tweetsShowing; i < numToShow; i++) {
@@ -65,7 +44,14 @@ swenApp.controller('homeCtrl', function($scope, $http, $timeout) {
                         console.log("*GET TWEETS* tweetsToShow length: " + $scope.tweetsToShow.length);
                     });
                 });
-                request = null;
+            }
+            else if (numToShow >= tweets.length)
+            {
+                $scope.infiniteScrolling = true;
+                for(var i = tweetsShowing; i < tweets.length; i++) {
+                    $scope.tweetsToShow.push(tweets[i]);
+                };
+                console.log("*TURN OFF INFINITE SCROLLING* tweetsToShow length: " + $scope.tweetsToShow.length);
             }
             else
             {
@@ -76,7 +62,7 @@ swenApp.controller('homeCtrl', function($scope, $http, $timeout) {
             }
             
             // render tweets with widgets.js
-            $timeout(function () {
+            $timeout(function() {
                 twttr.widgets.load();
             }, 30);
         }
