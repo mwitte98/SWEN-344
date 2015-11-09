@@ -4,6 +4,13 @@
 
    <% include header %>
 
+   <!-- Stock Scripts -->
+   <script src="https://code.highcharts.com/stock/highstock.src.js"></script>
+   <!-- <script src = "js/highcharts.js"></script> --> <!-- THIS IS INCLUDED IN 'highcharts-ng' AND FIXES THE ERROR OF MULTIPLE NAMESPACES -->
+
+   <!-- Typeahead Script -->
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
+
 	<title>Stocks</title>
 
 </head>
@@ -36,7 +43,7 @@
 
        <form style="margin-left:50px;">
              Search:<br/>
-             <input type="text" class="typeahead" name="symbol" ng-model="searchField">
+             <input type="text" class="typeahead" name="symbol" ng-model="searchField" id="searchField">
              <button type="submit" ng-click="getStockQuote()">Search</button>
        </form>
 

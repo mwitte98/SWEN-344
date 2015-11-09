@@ -1,35 +1,92 @@
-// var Twit = require('twit');
-
 var swenApp = angular.module('swenApp', ['ngResource', 'ngSanitize', 'infinite-scroll', 'highcharts-ng']);
 
-swenApp.controller('homeCtrl', function($scope, $resource, $timeout) {
+swenApp.controller('homeCtrl', function($scope, $http, $resource, $timeout) {
 
    init = function() {
-      getTweets();
+      $scope.getTweets();
   }
 
-   // Searches for stocks given a symbol or company name.
-   getTweets = function() {
+    var numPulled = 0;
+    var numToShow = 0;
+    var busy = false;
+    var max_id = 0;
+    var tweets = [];
+    $scope.tweetsToShow = [];
+    $scope.infiniteScrolling = false;
 
-       console.log("Call getTweets");
+    $scope.getTweets = function() {
 
-       $scope.tweets = $resource('/twitter/tweets', {});
+        if (busy)
+        {
+            console.log("Returning from busy");
+            return;
+        }
+        else
+        {
+            var tweetsShowing = numToShow;
+            numToShow += 20;
 
-       $scope.tweetsResult = [];
+            if (numPulled >= 800 && numToShow >= tweets.length)
+            {
+                $scope.infiniteScrolling = true;
+                console.log("Turning off infinite scrolling. numPulled: " + numPulled);
+                for(var i = tweetsShowing; i < tweets.length; i++) {
+                    $scope.tweetsToShow.push(tweets[i]);
+                };
+                console.log("*800 PULLED* tweetsToShow length: " + $scope.tweetsToShow.length);
+            }
+            else if (numToShow >= tweets.length)
+            {
+                if (max_id == null) {
+                    console.log("max_id is null");
+                    return;
+                }
+                busy = true;
+                var url = "/twitter/tweets/" + max_id.toString();
+                max_id = null;
+                var request = $http.get(url).then(function (response) {
+                    tweets = tweets.concat(response.data);
+                    busy = false;
 
-       $scope.tweets.query( { }, function (res) {
+                    if (tweets == null) {
+                        console.log("No tweets returned");
+                        return;
+                    }
+                    numPulled += 200; //we pull 200 tweets at a time
 
-           $scope.tweetsResult = $scope.tweetsResult.concat(res);
+                    // sort tweets highest id (newest) to lowest id (oldest)
+                    tweets.sort(function(a, b)
+                    {
+                        return b.id - a.id;
+                    });
 
-           // render tweets with widgets.js
-           $timeout(function () {
-               twttr.widgets.load();
-           }, 30);
-       });
+                    max_id = tweets[tweets.length-1].id - 1; //twitter uses max_id inclusively
 
-   };
+                    $timeout(function() {
+                        for(var i = tweetsShowing; i < numToShow; i++) {
+                            $scope.tweetsToShow.push(tweets[i]);
+                        };
+                        console.log("*GET TWEETS* tweetsToShow length: " + $scope.tweetsToShow.length);
+                    });
+                });
+                request = null;
+            }
+            else
+            {
+                for(var i = tweetsShowing; i < numToShow; i++) {
+                    $scope.tweetsToShow.push(tweets[i]);
+                };
+                console.log("*SHOW TWEETS* tweetsToShow length: " + $scope.tweetsToShow.length);
+            }
 
-   init();
+            // render tweets with widgets.js
+            $timeout(function () {
+                twttr.widgets.load();
+            }, 30);
+        }
+    };
+
+    init();
 
 });
 
