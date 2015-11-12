@@ -39,7 +39,7 @@
         </div>
     </header>
 
-    <div class="container">
+    <div class="col-sm-6 container stockPanel   ">
 
        <form style="margin-left:50px;">
              Search:<br/>
@@ -47,8 +47,8 @@
              <button type="submit" ng-click="getStockQuote()">Search</button>
        </form>
 
-       <div ng-show="stockQuote" class="hideByDefault" style="margin-top:20px;margin-left:50px;">
-           <div class="well col-sm-6">
+       <div ng-show="stockQuote" class="hideByDefault" style="padding:20px;margin-left:20px;">
+           <div class="well" style="padding:20px 20px 80px 20px">
                <div class='col-sm-6'>
                    <p><b>Name: </b>{{stockQuote.Name}}</p>
                </div>
@@ -68,6 +68,20 @@
            <highchart id="chart1" config="chartConfig"></highchart>
        </div>
 
+    </div>
+
+    <div class="col-sm-4 col-offset-sm-1">
+      <div class="well">
+        <p> Stocks owned: {{amountOwned}}</p>
+        <form ng-submit="stockBuy()">
+          <input type="number" ng-model="purchaseAmount" ng-disabled="disable">
+          <input type="submit" class="btn btn-small btn-primary" value="Buy Stock(s)"ng-disabled="disable">
+        </form>
+        <form ng-submit="stockSell()">
+          <input type="number" ng-model="sellAmount" ng-disabled="disable">
+          <input type="submit" class="btn btn-small btn-primary" value="Sell Stock(s)"ng-disabled="disable">
+        </form>
+      </div>
     </div>
 
     <!-- Typeahead Functionality -->

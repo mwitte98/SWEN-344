@@ -71,11 +71,17 @@ swenApp.controller('homeCtrl', function($scope, $http, $timeout) {
 });
 
 swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO "stockCtrl" FOR PRODUCTION ***
+  $scope.disable = true;
+  $scope.purchaseAmount = 0;
+  $scope.sellAmount = 0;
+  $scope.amountOwned = 0;
 
    // Gets a stock quote given a symbol and displays a graphical representation
    $scope.getStockQuote = function() {
-      getStockQuote($scope.searchField);
-      getChartQuote($scope.searchField);
+    $scope.disable = false;
+    $scope.stocksOwned = 0;
+    getStockQuote($scope.searchField);
+    getChartQuote($scope.searchField);
    }
 
    function getStockQuote(symbol) {
@@ -133,6 +139,22 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
 
    });
 
+  }
+
+  $scope.stockBuy = function() {
+    console.log($scope.stockQuote.LastPrice);
+    console.log($scope.purchaseAmount);
+    $scope.amountOwned += $scope.purchaseAmount;
+  }
+
+  $scope.stockSell = function() {
+    console.log($scope.stockQuote.LastPrice);
+    console.log($scope.sellAmount);
+    if ($scope.sellAmount > $scope.amountOwned) {
+      $scope.sellError = true;
+      return;
+    }
+    $scope.amountOwned -= $scope.sellAmount;
   }
 
 });
