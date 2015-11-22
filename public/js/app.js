@@ -145,16 +145,31 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
     console.log($scope.stockQuote.LastPrice);
     console.log($scope.purchaseAmount);
     $scope.amountOwned += $scope.purchaseAmount;
+
+    var stockData = {
+      lastPrice: $scope.stockQuote.LastPrice,
+      date: new Date(),
+      buyAmount: $scope.purchaseAmount
+    }
+
+    var request = $http.post("/stocks/stockBuy", stockData);
   }
 
   $scope.stockSell = function() {
     console.log($scope.stockQuote.LastPrice);
     console.log($scope.sellAmount);
+
     if ($scope.sellAmount > $scope.amountOwned) {
       $scope.sellError = true;
       return;
     }
+
     $scope.amountOwned -= $scope.sellAmount;
+    var stockData = {
+      sellAmount: $scope.sellAmount
+    }
+
+    var request = $http.post("/stocks/stockSell", stockData);
   }
 
 });
