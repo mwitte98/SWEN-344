@@ -78,7 +78,24 @@ module.exports = function(app, passport, Twit) {
 
         } // end getOEmbed
 
-
+    });
+    
+    
+    app.get('/twitter/post/:tweet', function(req, res) {
+        
+        if (Twitter == null) {
+            Twitter = new Twit({
+                consumer_key: configAuth.twitterAuth.consumerKey,
+                consumer_secret: configAuth.twitterAuth.consumerSecret,
+                access_token: req.user.token,
+                access_token_secret: req.user.tokenSecret
+            });
+        }
+        
+        Twitter.post('statuses/update', { status: req.params.tweet }, function(err, data, response) {
+            res.send("Posted tweet");
+        });
+        
     });
 
 

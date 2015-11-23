@@ -1,72 +1,68 @@
 var swenApp = angular.module('swenApp', ['ngResource', 'ngSanitize', 'infinite-scroll', 'highcharts-ng']);
 
-swenApp.controller('homeCtrl', function($scope, $http, $timeout) {
+swenApp.controller('homeCtrl', function($scope, $resource, $timeout, $q) {
 
-    var numToShow = 0;
-    var busy = false;
-    var tweets = [];
+    //var tweets = [];
+    $scope.limit = 0;
     $scope.tweetsToShow = [];
     $scope.infiniteScrolling = false;
 
     $scope.getTweets = function() {
-
-        if (busy)
-        {
-            console.log("Returning from busy");
-            return;
-        }
-        else
-        {
-            var tweetsShowing = numToShow;
-            numToShow += 20;
-            
-            if ($scope.tweetsToShow.length == 0) {
-                var url = "/twitter/tweets";
-                var request = $http.get(url).then(function (response) {
-                    tweets = tweets.concat(response.data);
-                    busy = false;
-
-                    if (tweets == null) {
-                        console.log("No tweets returned");
-                        return;
-                    }
-                    
-                    // sort tweets highest id (newest) to lowest id (oldest)
-                    tweets.sort(function(a, b)
-                    {
-                        return b.id - a.id;
-                    });
-                    
-                    $timeout(function() {
-                        for(var i = tweetsShowing; i < numToShow; i++) {
-                            $scope.tweetsToShow.push(tweets[i]);
-                        };
-                        console.log("*GET TWEETS* tweetsToShow length: " + $scope.tweetsToShow.length);
-                    });
+        
+        $scope.limit += 20;
+        
+        if ($scope.tweetsToShow.length == 0) {
+            var resource = $resource("/twitter/tweets");
+            resource.query(function (res) {
+                $scope.tweetsToShow = res;
+                
+                if ($scope.tweetsToShow == null) {
+                    console.log("No tweets returned");
+                    return;
+                }
+                
+                $scope.tweetsToShow.sort(function(a, b) {
+                    return b.id - a.id;
                 });
-            }
-            else if (numToShow >= tweets.length)
-            {
+                
+                console.log("*GET TWEETS* tweetsToShow length: " + $scope.tweetsToShow.length);
+                
+                $timeout(function() {
+                    twttr.widgets.load();
+                }, 30);
+            });
+            // $q.all([resource.query().$promise]).then(function(result) {
+            //     console.log("Inside of $q");
+            //     console.log(result);
+            //     $scope.tweetsToShow = result[0];
+            //     console.log("*$q* tweetsToShow length: " + $scope.tweetsToShow.length);
+            // });
+        }
+        else {
+            if ($scope.limit >= $scope.tweetsToShow.length) {
                 $scope.infiniteScrolling = true;
-                for(var i = tweetsShowing; i < tweets.length; i++) {
-                    $scope.tweetsToShow.push(tweets[i]);
-                };
-                console.log("*TURN OFF INFINITE SCROLLING* tweetsToShow length: " + $scope.tweetsToShow.length);
             }
-            else
-            {
-                for(var i = tweetsShowing; i < numToShow; i++) {
-                    $scope.tweetsToShow.push(tweets[i]);
-                };
-                console.log("*SHOW TWEETS* tweetsToShow length: " + $scope.tweetsToShow.length);
-            }
-
-            // render tweets with widgets.js
             $timeout(function() {
                 twttr.widgets.load();
             }, 30);
         }
     };
+    
+    $scope.postTweet = function() {
+        postTweet($scope.tweetField);
+    }
+
+    function postTweet(tweet) {
+    
+        var resource = $resource("/twitter/post/" + tweet);
+        resource.get(function (res) {
+            console.log("POSTED A TWEET!");
+            $scope.tweetsToShow = [];
+            $scope.infiniteScrolling = false;
+            $scope.getTweets();
+        });
+    
+    }
 
 });
 
