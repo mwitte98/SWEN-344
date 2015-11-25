@@ -1,8 +1,7 @@
 var swenApp = angular.module('swenApp', ['ngResource', 'ngSanitize', 'infinite-scroll', 'highcharts-ng']);
 
-swenApp.controller('homeCtrl', function($scope, $resource, $timeout, $q) {
+swenApp.controller('homeCtrl', function($scope, $resource, $timeout, $q, $rootScope) {
 
-    //var tweets = [];
     $scope.limit = 0;
     $scope.tweetsToShow = [];
     $scope.infiniteScrolling = false;
@@ -12,6 +11,7 @@ swenApp.controller('homeCtrl', function($scope, $resource, $timeout, $q) {
         $scope.limit += 20;
         
         if ($scope.tweetsToShow.length == 0) {
+            var deferred = $q.defer();
             var resource = $resource("/twitter/tweets");
             resource.query(function (res) {
                 $scope.tweetsToShow = res;
@@ -30,13 +30,10 @@ swenApp.controller('homeCtrl', function($scope, $resource, $timeout, $q) {
                 $timeout(function() {
                     twttr.widgets.load();
                 }, 30);
+                
+                deferred.resolve(res);
+                $rootScope.$$phase || $rootScope.$apply();
             });
-            // $q.all([resource.query().$promise]).then(function(result) {
-            //     console.log("Inside of $q");
-            //     console.log(result);
-            //     $scope.tweetsToShow = result[0];
-            //     console.log("*$q* tweetsToShow length: " + $scope.tweetsToShow.length);
-            // });
         }
         else {
             if ($scope.limit >= $scope.tweetsToShow.length) {

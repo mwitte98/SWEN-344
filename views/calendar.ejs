@@ -2,57 +2,131 @@
 <html ng-app='swenApp'>
 <head>
 
-	<% include header %>
+    <% include header %>
+	
+	<title>Calendar</title>
 
 	<!-- Calendar Scripts -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.js"></script>
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.4.0/fullcalendar.min.js"></script>
 	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.4.0/fullcalendar.min.css">
 
-   <script>
-
-      $(document).ready(function() {
-          $('#calendar').fullCalendar({
-              // put your options and callbacks here
-          })
-      });
-
-      $('#calendar').fullCalendar({
-          dayClick: function() {
-              alert('a day has been clicked!');
-          }
-      });
-
-   </script>
+	<script>
+	
+		$(document).ready(function() {
+            var calendar = $('#calendar');
+		    calendar.fullCalendar({
+			    dayClick: function(date, jsEvent, view) {
+                    document.getElementById("addEventStart").value = date.format();
+                    $("#addEventModal").modal('show');
+				},
+                eventRender: function(event, element) {
+                    $(element).addClass("clickableEvent");
+                    $(element).click(function() {
+                        document.getElementById("eventDetailsTitle").innerHTML = event.title;
+                        document.getElementById("eventDetailsStart").innerHTML = event.start.format();
+                        $("#eventDetailsModal").modal('show');
+                    });
+                }
+			});
+            
+            calendar.fullCalendar('renderEvent', {
+                title: 'Thanksgiving',
+                start: '2015-11-26'
+            });
+            
+            $('#addEventSubmit').click(function() {
+                var title = document.getElementById("addEventTitle").value;
+                var start = document.getElementById("addEventStart").value;
+                
+                calendar.fullCalendar('renderEvent', {
+                    title: title,
+                    start: start
+                });
+                
+                document.getElementById("addEventTitle").value = '';
+                document.getElementById("addEventStart").value = '';
+                $("#addEventModal").modal('hide');
+            });
+            
+            $('#eventDetailsSubmit').click(function() {
+                var title = document.getElementById("eventDetailsTitle").innerText;
+                var start = document.getElementById("eventDetailsStart").innerText;
+                
+                calendar.fullCalendar('removeEvents', function(event) {
+                    if (event.title == title && event.start.format() == start) {
+                        return true;
+                    }
+                });
+                
+                $("#eventDetailsModal").modal('hide');
+            });
+		});
+	
+	</script>
 
 </head>
 <body ng-controller="mainCtrl">
-	<header class="navbar navbar-inverse">
-		<div class="container">
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-					<span class="sr-only">Toggle navigation</span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
-				<a class="navbar-brand" href="/">SWEN-344</a>
-			</div>
-			<div id="navbar" class="collapse navbar-collapse">
-				<ul class="nav navbar-nav navbar-right">
-					<li><a href="/">Home</a></li>
-					<li><a href="/stocks">Stocks</a></li>
-					<li><a href="/calendar">Calendar</a></li>
-					<li><a href="/logout">Log out</a></li>
-				</ul>
-			</div>
-		</div>
-	</header>
+    <% include navbar %>
 
-   <main>
-      <div id="calendar">
-      </div>
-   </main>
+    <main>
+        <div class="container">
+            <div class="modal fade" id="addEventModal" tabindex="-1" role="dialog" aria-labelledby="addEventModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="addEventModalLabel">Add Event</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+                                <div class="form-group">
+                                    <label for="addEventTitle" class="control-label">Event Title:</label>
+                                    <input type="text" class="form-control" id="addEventTitle">
+                                </div>
+                                <div class="form-group">
+                                    <label for="addEventStart" class="control-label">Start:</label>
+                                    <input type="text" class="form-control" id="addEventStart">
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary" id="addEventSubmit">Add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal fade" id="eventDetailsModal" tabindex="-1" role="dialog" aria-labelledby="eventDetailsModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="eventDetailsModalLabel">Event Details</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container">
+                                <div class="row">
+                                    <strong>Event Title: </strong><p id="eventDetailsTitle"></p>
+                                </div>
+                                <div class="row">
+                                    <strong>Start: </strong><p id="eventDetailsStart"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-danger" id="eventDetailsSubmit">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+            <div id="calendar">
+            </div>
+        </div>
+    </main>
 
 </body>
 </html>

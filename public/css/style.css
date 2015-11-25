@@ -120,3 +120,7 @@ blockquote.twitter-tweet a:focus {
 }
 
 /* End Twitter Embed Styles */
+
+.clickableEvent {
+  cursor: pointer;
+}
