@@ -10,6 +10,7 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.js"></script>
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.4.0/fullcalendar.min.js"></script>
 	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.4.0/fullcalendar.min.css">
+    <script src="js/combodate.js"></script>
 
 	<script>
 	
@@ -17,14 +18,19 @@
             var calendar = $('#calendar');
 		    calendar.fullCalendar({
 			    dayClick: function(date, jsEvent, view) {
-                    document.getElementById("addEventStart").value = date.format();
+                    var defaultDate = (date.month()+1) + "-" + date.date() + "-" + date.year() + " 12:00 am";
+                    $('#addEventStart').combodate('setValue', defaultDate);
+                    $('#addEventEnd').combodate('setValue', defaultDate);
                     $("#addEventModal").modal('show');
 				},
                 eventRender: function(event, element) {
                     $(element).addClass("clickableEvent");
                     $(element).click(function() {
                         document.getElementById("eventDetailsTitle").innerHTML = event.title;
-                        document.getElementById("eventDetailsStart").innerHTML = event.start.format();
+                        document.getElementById("eventDetailsStart").innerHTML = event.start.format('MMMM Do YYYY, h:mm a');
+                        document.getElementById("eventDetailsEnd").innerHTML = event.end.format('MMMM Do YYYY, h:mm a');
+                        document.getElementById("eventDetailsLocation").innerHTML = event.location;
+                        document.getElementById("eventDetailsDesc").innerHTML = event.description;
                         $("#eventDetailsModal").modal('show');
                     });
                 }
@@ -32,34 +38,79 @@
             
             calendar.fullCalendar('renderEvent', {
                 title: 'Thanksgiving',
-                start: '2015-11-26'
+                start: '2015-11-26',
+                end: '2015-11-27',
+                location: 'Home',
+                description: 'Lots of food!'
             });
             
             $('#addEventSubmit').click(function() {
                 var title = document.getElementById("addEventTitle").value;
                 var start = document.getElementById("addEventStart").value;
+                var end = document.getElementById("addEventEnd").value;
+                var location = document.getElementById("addEventLocation").value;
+                var desc = document.getElementById("addEventDesc").value;
+                var startDate = moment(start, 'MM-DD-YYYY h:mm a');
+                var endDate = moment(end, 'MM-DD-YYYY h:mm a');
                 
-                calendar.fullCalendar('renderEvent', {
-                    title: title,
-                    start: start
-                });
-                
-                document.getElementById("addEventTitle").value = '';
-                document.getElementById("addEventStart").value = '';
-                $("#addEventModal").modal('hide');
+                if ($.trim(title).length <= 0) {
+                    alert("The title must be filled in.");
+                }
+                else if (endDate.isBefore(startDate) || endDate.isSame(startDate)) {
+                    alert("The end date must be after the start date.");
+                }
+                else {
+                    calendar.fullCalendar('renderEvent', {
+                        title: title,
+                        start: startDate,
+                        end: endDate,
+                        location: location,
+                        description: desc
+                    });
+                    
+                    document.getElementById("addEventTitle").value = '';
+                    $('#addEventStart').combodate('setValue', null);
+                    $('#addEventEnd').combodate('setValue', null);
+                    document.getElementById("addEventLocation").value = '';
+                    document.getElementById("addEventDesc").value = '';
+                    $("#addEventModal").modal('hide');
+                }
             });
             
             $('#eventDetailsSubmit').click(function() {
                 var title = document.getElementById("eventDetailsTitle").innerText;
                 var start = document.getElementById("eventDetailsStart").innerText;
+                var end = document.getElementById("eventDetailsEnd").innerText;
+                var location = document.getElementById("eventDetailsLocation").innerText;
+                var desc = document.getElementById("eventDetailsDesc").innerText;
                 
                 calendar.fullCalendar('removeEvents', function(event) {
-                    if (event.title == title && event.start.format() == start) {
+                    if (event.title == title && 
+                        event.start.format('MMMM Do YYYY, h:mm a') == start && 
+                        event.end.format('MMMM Do YYYY, h:mm a') == end && 
+                        event.location == location && 
+                        event.description == desc) {
                         return true;
                     }
                 });
                 
                 $("#eventDetailsModal").modal('hide');
+            });
+            
+            $(function(){
+                $('#addEventStart').combodate({
+                    minYear: 2015,
+                    maxYear: 2020,
+                    minuteStep: 1
+                });
+            });
+            
+            $(function(){
+                $('#addEventEnd').combodate({
+                    minYear: 2015,
+                    maxYear: 2020,
+                    minuteStep: 1
+                });
             });
 		});
 	
@@ -86,7 +137,19 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="addEventStart" class="control-label">Start:</label>
-                                    <input type="text" class="form-control" id="addEventStart">
+                                    <input type="text" class="form-control" id="addEventStart" data-format="MM-DD-YYYY h:mm a" data-template="MMM D YYYY hh:mm a" name="datetime">
+                                </div>
+                                <div class="form-group">
+                                    <label for="addEventEnd" class="control-label">End:</label>
+                                    <input type="text" class="form-control" id="addEventEnd" data-format="MM-DD-YYYY h:mm a" data-template="MMM D YYYY hh:mm a" name="datetime">
+                                </div>
+                                <div class="form-group">
+                                    <label for="addEventLocation" class="control-label">Location:</label>
+                                    <input type="text" class="form-control" id="addEventLocation">
+                                </div>
+                                <div class="form-group">
+                                    <label for="addEventDesc" class="control-label">Description:</label>
+                                    <textarea type="text" class="form-control" id="addEventDesc"></textarea>
                                 </div>
                             </form>
                         </div>
@@ -112,6 +175,15 @@
                                 </div>
                                 <div class="row">
                                     <strong>Start: </strong><p id="eventDetailsStart"></p>
+                                </div>
+                                <div class="row">
+                                    <strong>End: </strong><p id="eventDetailsEnd"></p>
+                                </div>
+                                <div class="row">
+                                    <strong>Location: </strong><p id="eventDetailsLocation"></p>
+                                </div>
+                                <div class="row">
+                                    <strong>Description: </strong><p id="eventDetailsDesc"></p>
                                 </div>
                             </div>
                         </div>
