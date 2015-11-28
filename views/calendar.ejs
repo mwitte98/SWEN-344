@@ -17,12 +17,38 @@
 		$(document).ready(function() {
             var calendar = $('#calendar');
 		    calendar.fullCalendar({
+                // Pull user's events from db. Called on page load and when changing months.
+                events: function(start, end, timezone, callback) {
+                    $.ajax({
+                        url: '/calendar/all',
+                        dataType: 'json',
+                        data: {},
+                        success: function(doc) {
+                            var events = [];
+                            $(doc).find('event').each(function() {
+                                events.push({
+                                    title: $(this).attr('title'),
+                                    start: $(this).attr('start'),
+                                    end: $(this).attr('end'),
+                                    location: $(this).attr('location'),
+                                    description: $(this).attr('description')
+                                });
+                            });
+                            callback(events);
+                        }
+                    });
+                },
+                // Pop up add event modal when a day is clicked.
+                // Set default start and end dates to the date that was clicked.
 			    dayClick: function(date, jsEvent, view) {
                     var defaultDate = (date.month()+1) + "-" + date.date() + "-" + date.year() + " 12:00 am";
                     $('#addEventStart').combodate('setValue', defaultDate);
                     $('#addEventEnd').combodate('setValue', defaultDate);
                     $("#addEventModal").modal('show');
 				},
+                // Called when an event is rendered on the calendar.
+                // Add css class to make event appear clickable.
+                // Show details/delete modal when clicking on an event
                 eventRender: function(event, element) {
                     $(element).addClass("clickableEvent");
                     $(element).click(function() {
@@ -36,65 +62,99 @@
                 }
 			});
             
-            calendar.fullCalendar('renderEvent', {
-                title: 'Thanksgiving',
-                start: '2015-11-26',
-                end: '2015-11-27',
-                location: 'Home',
-                description: 'Lots of food!'
-            });
-            
+            // Called when add button is clicked on add event modal
             $('#addEventSubmit').click(function() {
+                // Get form values
                 var title = document.getElementById("addEventTitle").value;
                 var start = document.getElementById("addEventStart").value;
                 var end = document.getElementById("addEventEnd").value;
                 var location = document.getElementById("addEventLocation").value;
                 var desc = document.getElementById("addEventDesc").value;
+                
+                // Convert dates to moment form
                 var startDate = moment(start, 'MM-DD-YYYY h:mm a');
                 var endDate = moment(end, 'MM-DD-YYYY h:mm a');
                 
+                // Validation
                 if ($.trim(title).length <= 0) {
                     alert("The title must be filled in.");
                 }
                 else if (endDate.isBefore(startDate) || endDate.isSame(startDate)) {
                     alert("The end date must be after the start date.");
                 }
+                else if (startDate.isBefore(moment())) {
+                    alert("Events cannot be created in the past.");
+                }
                 else {
-                    calendar.fullCalendar('renderEvent', {
-                        title: title,
-                        start: startDate,
-                        end: endDate,
-                        location: location,
-                        description: desc
+                    // Create event in db
+                    $.ajax({
+                        url: '/calendar/new',
+                        dataType: 'json',
+                        data: {
+                            title: title,
+                            start: startDate.toISOString(),
+                            end: endDate.toISOString(),
+                            location: location,
+                            description: desc
+                        },
+                        success: function(doc) {
+                            // Render event on calendar after it's been created in db
+                            calendar.fullCalendar('renderEvent', {
+                                title: title,
+                                start: startDate,
+                                end: endDate,
+                                location: location,
+                                description: desc
+                            });
+                            
+                            // Remove values from add event modal and hide modal
+                            document.getElementById("addEventTitle").value = '';
+                            $('#addEventStart').combodate('setValue', null);
+                            $('#addEventEnd').combodate('setValue', null);
+                            document.getElementById("addEventLocation").value = '';
+                            document.getElementById("addEventDesc").value = '';
+                            $("#addEventModal").modal('hide');
+                        }
                     });
                     
-                    document.getElementById("addEventTitle").value = '';
-                    $('#addEventStart').combodate('setValue', null);
-                    $('#addEventEnd').combodate('setValue', null);
-                    document.getElementById("addEventLocation").value = '';
-                    document.getElementById("addEventDesc").value = '';
-                    $("#addEventModal").modal('hide');
                 }
             });
             
+            // Called when delete button is clicked on details/delete modal
             $('#eventDetailsSubmit').click(function() {
+                // Get event details to know which event to delete
                 var title = document.getElementById("eventDetailsTitle").innerText;
                 var start = document.getElementById("eventDetailsStart").innerText;
                 var end = document.getElementById("eventDetailsEnd").innerText;
                 var location = document.getElementById("eventDetailsLocation").innerText;
                 var desc = document.getElementById("eventDetailsDesc").innerText;
                 
-                calendar.fullCalendar('removeEvents', function(event) {
-                    if (event.title == title && 
-                        event.start.format('MMMM Do YYYY, h:mm a') == start && 
-                        event.end.format('MMMM Do YYYY, h:mm a') == end && 
-                        event.location == location && 
-                        event.description == desc) {
-                        return true;
+                // Delete event in db
+                $.ajax({
+                    url: '/calendar/delete',
+                    dataType: 'json',
+                    data: {
+                        title: title,
+                        start: startDate.toISOString(),
+                        end: endDate.toISOString(),
+                        location: location,
+                        description: desc
+                    },
+                    success: function(doc) {
+                        // Remove event from calendar and hide modal
+                        calendar.fullCalendar('removeEvents', function(event) {
+                            if (event.title == title && 
+                                event.start.format('MMMM Do YYYY, h:mm a') == start && 
+                                event.end.format('MMMM Do YYYY, h:mm a') == end && 
+                                event.location == location && 
+                                event.description == desc) {
+                                return true;
+                            }
+                        });
+                        
+                        $("#eventDetailsModal").modal('hide');
                     }
                 });
-                
-                $("#eventDetailsModal").modal('hide');
             });
             
             $(function(){
@@ -122,6 +182,7 @@
 
     <main>
         <div class="container">
+            <!-- Add event modal -->
             <div class="modal fade" id="addEventModal" tabindex="-1" role="dialog" aria-labelledby="addEventModalLabel">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
@@ -161,6 +222,7 @@
                 </div>
             </div>
             
+            <!-- Event details/delete modal -->
             <div class="modal fade" id="eventDetailsModal" tabindex="-1" role="dialog" aria-labelledby="eventDetailsModalLabel">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">

@@ -3,11 +3,12 @@ var Schema = mongoose.Schema;
 
 // create a schema
 var userSchema = new Schema({
-   twitterID: String,
-   token: String,
-   tokenSecret: String,
-   displayName: String,
-   username: String
+    twitterID: String,
+    token: String,
+    tokenSecret: String,
+    displayName: String,
+    username: String,
+    events: []
 });
 
 // the schema is useless so far
