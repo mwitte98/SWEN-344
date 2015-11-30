@@ -23,9 +23,11 @@
                         url: '/calendar/all',
                         dataType: 'json',
                         data: {},
-                        success: function(doc) {
+                        success: function(results) {
+                            console.log(results);
                             var events = [];
-                            $(doc).find('event').each(function() {
+                            $(results).each(function() {
+                                console.log(this);
                                 events.push({
                                     title: $(this).attr('title'),
                                     start: $(this).attr('start'),
@@ -34,6 +36,7 @@
                                     description: $(this).attr('description')
                                 });
                             });
+                            console.log(events);
                             callback(events);
                         }
                     });
@@ -72,8 +75,8 @@
                 var desc = document.getElementById("addEventDesc").value;
                 
                 // Convert dates to moment form
-                var startDate = moment(start, 'MM-DD-YYYY h:mm a');
-                var endDate = moment(end, 'MM-DD-YYYY h:mm a');
+                var startDate = moment(start, 'MM-DD-YYYY, h:mm a');
+                var endDate = moment(end, 'MM-DD-YYYY, h:mm a');
                 
                 // Validation
                 if ($.trim(title).length <= 0) {
@@ -128,6 +131,10 @@
                 var end = document.getElementById("eventDetailsEnd").innerText;
                 var location = document.getElementById("eventDetailsLocation").innerText;
                 var desc = document.getElementById("eventDetailsDesc").innerText;
+                
+                // Convert dates to moment form
+                var startDate = moment(start, 'MM-DD-YYYY, h:mm a');
+                var endDate = moment(end, 'MM-DD-YYYY, h:mm a');
                 
                 // Delete event in db
                 $.ajax({
