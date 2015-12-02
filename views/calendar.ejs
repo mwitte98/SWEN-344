@@ -44,10 +44,22 @@
                 // Pop up add event modal when a day is clicked.
                 // Set default start and end dates to the date that was clicked.
 			    dayClick: function(date, jsEvent, view) {
-                    var defaultDate = (date.month()+1) + "-" + date.date() + "-" + date.year() + " 12:00 am";
-                    $('#addEventStart').combodate('setValue', defaultDate);
-                    $('#addEventEnd').combodate('setValue', defaultDate);
-                    $("#addEventModal").modal('show');
+                    var currentDate = calendar.fullCalendar('getDate');
+                    if (currentDate.month() == date.month()) {
+                        var defaultDate = "";
+                        var month = date.month() + 1; //months are 0-11
+                        if (month < 10) {
+                            defaultDate += "0";
+                        }
+                        defaultDate += month + "-";
+                        if (date.date() < 10)  {
+                            defaultDate += "0";
+                        }
+                        defaultDate += date.date() + "-" + date.year() + " 12:00 am";
+                        $('#addEventStart').combodate('setValue', defaultDate);
+                        $('#addEventEnd').combodate('setValue', defaultDate);
+                        $("#addEventModal").modal('show');
+                    }
 				},
                 // Called when an event is rendered on the calendar.
                 // Add css class to make event appear clickable.
@@ -62,7 +74,8 @@
                         document.getElementById("eventDetailsDesc").innerHTML = event.description;
                         $("#eventDetailsModal").modal('show');
                     });
-                }
+                },
+                fixedWeekCount: false
 			});
             
             // Called when add button is clicked on add event modal

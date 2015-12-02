@@ -1,7 +1,6 @@
 var calApiRouter = require('express').Router();
 var User = require('../app/models/user');
 var Event = require('../app/models/event');
-var moment = require('moment');
 
 // This will get called every time someone uses this route (/calendar)
 calApiRouter.use(function(req, res, next){
@@ -38,8 +37,8 @@ calApiRouter.get('/new', isLoggedIn, function(req, res) {
     // Create new event
     var newEvent = Event({
         title: req.query.title,
-        start: moment(req.query.startDate),
-        end: moment(req.query.endDate),
+        start: req.query.startDate,
+        end: req.query.endDate,
         location: req.query.location,
         description: req.query.description
     });

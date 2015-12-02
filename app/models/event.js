@@ -1,12 +1,11 @@
 var mongoose = require('mongoose');
-require('mongoose-moment')(mongoose);
 var Schema = mongoose.Schema;
 
 // create a schema
 var eventSchema = new Schema({
     title: String,
-    start: 'Moment',
-    end: 'Moment',
+    start: String,
+    end: String,
     location: String,
     description: String
 });
