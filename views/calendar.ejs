@@ -114,22 +114,28 @@
                             description: desc
                         },
                         success: function(doc) {
-                            // Render event on calendar after it's been created in db
-                            calendar.fullCalendar('renderEvent', {
-                                title: title,
-                                start: startDate,
-                                end: endDate,
-                                location: location,
-                                description: desc
-                            });
-                            
-                            // Remove values from add event modal and hide modal
-                            document.getElementById("addEventTitle").value = '';
-                            $('#addEventStart').combodate('setValue', null);
-                            $('#addEventEnd').combodate('setValue', null);
-                            document.getElementById("addEventLocation").value = '';
-                            document.getElementById("addEventDesc").value = '';
-                            $("#addEventModal").modal('hide');
+                            if (doc.error) {
+                                // Event already exists so alert user and don't create event
+                                alert("This event already exists.");
+                            }
+                            else {
+                                // Render event on calendar after it's been created in db
+                                calendar.fullCalendar('renderEvent', {
+                                    title: title,
+                                    start: startDate,
+                                    end: endDate,
+                                    location: location,
+                                    description: desc
+                                });
+                                
+                                // Remove values from add event modal and hide modal
+                                document.getElementById("addEventTitle").value = '';
+                                $('#addEventStart').combodate('setValue', null);
+                                $('#addEventEnd').combodate('setValue', null);
+                                document.getElementById("addEventLocation").value = '';
+                                document.getElementById("addEventDesc").value = '';
+                                $("#addEventModal").modal('hide');
+                            }
                         }
                     });
                     

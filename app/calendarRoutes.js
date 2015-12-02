@@ -44,6 +44,20 @@ calApiRouter.get('/new', isLoggedIn, function(req, res) {
     });
     console.log("New event: " + newEvent);
     
+    // Return error if event already exists
+    var events = req.user.events;
+    for (var i = 0; i < events.length; i++) {
+        var event = events[i];
+        if (newEvent.title == event.title &&
+            newEvent.start == event.start &&
+            newEvent.end == event.end &&
+            newEvent.location == event.location &&
+            newEvent.description == event.description) {
+            res.send({ "error": true });
+            return;
+        }
+    }
+    
     // Save new event
     newEvent.save(function(err) {
         if (err) throw err;
@@ -51,7 +65,6 @@ calApiRouter.get('/new', isLoggedIn, function(req, res) {
         console.log('Event created!');
         
         // Add event to events array of logged in user
-        var events = req.user.events;
         events.push(newEvent);
         console.log("Events: " + events);
         
@@ -63,7 +76,7 @@ calApiRouter.get('/new', isLoggedIn, function(req, res) {
         });
         
         // AJAX request is expecting JSON back
-        res.send({});
+        res.send({ "success": "Event created successfully" });
     });
     
 });
@@ -81,7 +94,7 @@ calApiRouter.get('/delete', isLoggedIn, function(req, res) {
     // delete event
     
     // AJAX request is expecting JSON back
-    res.send({});
+    res.send({ "success": "Event deleted successfully" });
     
 });
 
