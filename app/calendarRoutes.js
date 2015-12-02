@@ -85,13 +85,44 @@ calApiRouter.get('/delete', isLoggedIn, function(req, res) {
     console.log("calendarRoutes.js - /delete");
     console.log(req.query);
     
+    var newEvent = {
+        title: req.query.title,
+        start: req.query.start,
+        end: req.query.end,
+        location: req.query.location,
+        description: req.query.description
+    };
+    
     // find event from req.query in req.user.events
+    var events = req.user.events;
+    for (var eventIndex = 0; eventIndex < events.length; eventIndex++) {
+        var event = events[eventIndex];
+        if (newEvent.title == event.title &&
+            newEvent.start == event.start &&
+            newEvent.end == event.end &&
+            newEvent.location == event.location &&
+            newEvent.description == event.description) {
+            break;
+        }
+    }
     
     // remove that event from array
+    events = events.splice(eventIndex, 1);
+    console.log("Removed event: " + events);
     
     // save updated user
-    
-    // delete event
+    User.findOneAndUpdate({ 'twitterID': req.user.twitterID }, {$set: { 'events': events }}, { new: true }, function(err, updatedUser) {
+        if (err) throw err;
+        
+        console.log("Updated user: " + updatedUser);
+        
+        // delete event
+        Event.findOneAndRemove(newEvent, function(err) {
+            if (err) throw err;
+            
+            console.log("Updated user events: " + req.user.events);
+        });
+    });
     
     // AJAX request is expecting JSON back
     res.send({ "success": "Event deleted successfully" });
