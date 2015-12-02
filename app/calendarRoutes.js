@@ -37,8 +37,8 @@ calApiRouter.get('/new', isLoggedIn, function(req, res) {
     // Create new event
     var newEvent = Event({
         title: req.query.title,
-        start: req.query.startDate,
-        end: req.query.endDate,
+        start: req.query.start,
+        end: req.query.end,
         location: req.query.location,
         description: req.query.description
     });

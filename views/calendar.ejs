@@ -30,8 +30,8 @@
                                 console.log(this);
                                 events.push({
                                     title: $(this).attr('title'),
-                                    start: $(this).attr('start'),
-                                    end: $(this).attr('end'),
+                                    start: moment($(this).attr('start')),
+                                    end: moment($(this).attr('end')),
                                     location: $(this).attr('location'),
                                     description: $(this).attr('description')
                                 });
