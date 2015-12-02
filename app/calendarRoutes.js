@@ -23,17 +23,11 @@ function isLoggedIn(req, res, next) {
 }
 
 calApiRouter.get('/all', isLoggedIn, function(req, res) {
-    console.log("calendarRoutes.js - /all");
-    console.log(req.user);
-    
     // Send events array for logged in user
     res.send(req.user.events);
 });
 
 calApiRouter.get('/new', isLoggedIn, function(req, res) {
-    console.log("calendarRoutes.js - /new");
-    console.log(req.query);
-    
     // Create new event
     var newEvent = Event({
         title: req.query.title,
@@ -42,7 +36,6 @@ calApiRouter.get('/new', isLoggedIn, function(req, res) {
         location: req.query.location,
         description: req.query.description
     });
-    console.log("New event: " + newEvent);
     
     // Return error if event already exists
     var events = req.user.events;
@@ -62,17 +55,12 @@ calApiRouter.get('/new', isLoggedIn, function(req, res) {
     newEvent.save(function(err) {
         if (err) throw err;
         
-        console.log('Event created!');
-        
         // Add event to events array of logged in user
         events.push(newEvent);
-        console.log("Events: " + events);
         
         // Update events array of logged in user in the db
         User.findOneAndUpdate({ 'twitterID': req.user.twitterID }, {$set: { 'events': events }}, { new: true }, function(err, updatedUser) {
             if (err) throw err;
-            
-            console.log("Updated user: " + updatedUser);
         });
         
         // AJAX request is expecting JSON back
@@ -82,8 +70,6 @@ calApiRouter.get('/new', isLoggedIn, function(req, res) {
 });
 
 calApiRouter.get('/delete', isLoggedIn, function(req, res) {
-    console.log("calendarRoutes.js - /delete");
-    console.log(req.query);
     
     var newEvent = {
         title: req.query.title,
@@ -108,19 +94,14 @@ calApiRouter.get('/delete', isLoggedIn, function(req, res) {
     
     // remove that event from array
     events = events.splice(eventIndex, 1);
-    console.log("Removed event: " + events);
     
     // save updated user
     User.findOneAndUpdate({ 'twitterID': req.user.twitterID }, {$set: { 'events': events }}, { new: true }, function(err, updatedUser) {
         if (err) throw err;
         
-        console.log("Updated user: " + updatedUser);
-        
         // delete event
         Event.findOneAndRemove(newEvent, function(err) {
             if (err) throw err;
-            
-            console.log("Updated user events: " + req.user.events);
         });
     });
     

@@ -24,10 +24,8 @@
                         dataType: 'json',
                         data: {},
                         success: function(results) {
-                            console.log(results);
                             var events = [];
                             $(results).each(function() {
-                                console.log(this);
                                 events.push({
                                     title: $(this).attr('title'),
                                     start: moment($(this).attr('start')),
@@ -36,7 +34,6 @@
                                     description: $(this).attr('description')
                                 });
                             });
-                            console.log(events);
                             callback(events);
                         }
                     });
@@ -56,8 +53,12 @@
                             defaultDate += "0";
                         }
                         defaultDate += date.date() + "-" + date.year() + " 12:00 am";
+                        
+                        document.getElementById("addEventTitle").value = '';
                         $('#addEventStart').combodate('setValue', defaultDate);
                         $('#addEventEnd').combodate('setValue', defaultDate);
+                        document.getElementById("addEventLocation").value = '';
+                        document.getElementById("addEventDesc").value = '';
                         $("#addEventModal").modal('show');
                     }
 				},
