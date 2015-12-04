@@ -1,0 +1,103 @@
+<h2 class="chatTitle">Public Chat</h2>
+
+<div id="messagesContainer">
+
+   <ul id="messageList">
+   </ul>
+
+   <form id="sendMessageForm">
+      <input type="text" id="messageTextInput" placeholder="Say something...">
+   </form>
+
+</div>
+
+
+<script>
+
+   var socket = io(); // defaults to try to connect to the host url (what we want)
+
+   var currentUser = "<%= user.displayName %>";
+
+   // User pressed enter in the chat (sent a message)
+   $("#messageTextInput").on("keyup", function(e) {
+
+      if (e.keyCode == 13) { // Keycode for the Enter key
+         if( sanitizeMessageText($('#messageTextInput').val()) != "" ) {
+            socket.emit('new message', {sender: currentUser, body: $('#messageTextInput').val()});
+            $('#messageTextInput').val('');
+         }
+      }
+   });
+
+   socket.on('chat history', function(history){
+      history.messages.forEach(function(message) {
+         addMessageToList(message);
+      });
+   });
+
+   socket.on('message created', function(message){
+      addMessageToList(message);
+   });
+
+
+   // ****** Chat Interface Setup ******
+
+   scrollChatToBottom();
+
+   $('.chatTitle').click(function() {
+      toggleChat()
+   });
+
+
+   // ****** Helper Methods ******
+
+   var isChatOpen = true;
+
+   function toggleChat() {
+
+      if(isChatOpen) { // Chat is open, close it
+         $('#messageList').toggle();
+         $('#messageTextInput').toggle();
+         $('#messagesContainer').css('bottom', '-300px');
+         $('.chatTitle').css('bottom', '0px');
+         isChatOpen = false;
+      }
+      else { // Chat is closed, open it
+         $('#messageList').toggle();
+         $('#messageTextInput').toggle();
+         $('#messagesContainer').css('bottom', '0px');
+         $('.chatTitle').css('bottom', '300px');
+
+         scrollChatToBottom();
+         $('#messageTextInput').focus();
+
+         isChatOpen = true;
+      }
+
+   }
+
+   function scrollChatToBottom() {
+      var messageContainer = document.getElementById('messagesContainer');
+      messageContainer.scrollTop = messageContainer.scrollHeight;
+   }
+
+   function addMessageToList(message) {
+
+      var messageClass = "";
+      if( message.sender === currentUser ) { // Make this users messages blue
+         messageClass = "messageMe";
+      }
+      else {
+         messageClass = "messageNotMe";
+      }
+      $('#messageList').append($("<li class='message " + messageClass + "'><p class='sender'>" + message.sender + "</p><p class='body'>" + message.body + "</p></li>"));
+      scrollChatToBottom();
+   }
+
+   function sanitizeMessageText(text) {
+      var trimmedText = $.trim(text);
+      var result = trimmedText.replace(/[^a-z0-9\s]/gi, '').replace(/[_\s]/g, ' ');
+      return result;
+   }
+
+</script>

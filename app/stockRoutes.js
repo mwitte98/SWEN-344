@@ -22,7 +22,7 @@ function isLoggedIn(req, res, next) {
 }
 
 stocksApiRouter.get('/', isLoggedIn, function(req, res) {
-    res.render('stocks.ejs');
+    res.render('stocks.ejs', {user : req.user});
 });
 
 stocksApiRouter.get('/search', isLoggedIn, function(req, res) {
@@ -74,16 +74,16 @@ stocksApiRouter.get('/quote', isLoggedIn, function(req, res) {
 stocksApiRouter.get('/chart', isLoggedIn, function(req, res) {
 
     console.log(req.query);
-    
+
     var today = new Date(); // Get today's date
     var todayISO = today.toISOString(); // Put date into ISO format (for Markit API)
     console.log("Today ISO: " + todayISO);
-    
+
     var lastYearToday = new Date();
     lastYearToday.setYear(lastYearToday.getFullYear() - 1);
     var lastYearTodayISO = lastYearToday.toISOString();
     console.log("Last Year ISO: " + lastYearTodayISO);
-    
+
     var chartInput = JSON.stringify({
         Normalized: false,
         NumberOfDays: 365,
@@ -100,17 +100,17 @@ stocksApiRouter.get('/chart', isLoggedIn, function(req, res) {
             }
         ]
     });
-    
+
     var chartUrl = "http://dev.markitondemand.com/MODApis/Api/v2/InteractiveChart/json?parameters=" + chartInput;
-    
+
     var request = http.get(chartUrl, function (response) {
-    
+
         var buffer = "", data, route;
-    
+
         response.on("data", function (chunk) {
             buffer += chunk;
         });
-    
+
         response.on("end", function (err) {
             console.log("Chart Buffer: " + buffer);
             res.send(JSON.parse(buffer));

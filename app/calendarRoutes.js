@@ -8,7 +8,7 @@ calApiRouter.use(function(req, res, next){
 });
 
 calApiRouter.get('/', isLoggedIn, function(req, res) {
-    res.render('calendar');
+    res.render('calendar', {user : req.user});
 });
 
 function isLoggedIn(req, res, next) {
@@ -36,7 +36,7 @@ calApiRouter.get('/new', isLoggedIn, function(req, res) {
         location: req.query.location,
         description: req.query.description
     });
-    
+
     // Return error if event already exists
     var events = req.user.events;
     for (var i = 0; i < events.length; i++) {
@@ -50,27 +50,27 @@ calApiRouter.get('/new', isLoggedIn, function(req, res) {
             return;
         }
     }
-    
+
     // Save new event
     newEvent.save(function(err) {
         if (err) throw err;
-        
+
         // Add event to events array of logged in user
         events.push(newEvent);
-        
+
         // Update events array of logged in user in the db
         User.findOneAndUpdate({ 'twitterID': req.user.twitterID }, {$set: { 'events': events }}, { new: true }, function(err, updatedUser) {
             if (err) throw err;
         });
-        
+
         // AJAX request is expecting JSON back
         res.send({ "success": "Event created successfully" });
     });
-    
+
 });
 
 calApiRouter.get('/delete', isLoggedIn, function(req, res) {
-    
+
     var newEvent = {
         title: req.query.title,
         start: req.query.start,
@@ -78,7 +78,7 @@ calApiRouter.get('/delete', isLoggedIn, function(req, res) {
         location: req.query.location,
         description: req.query.description
     };
-    
+
     // find event from req.query in req.user.events
     var events = req.user.events;
     for (var eventIndex = 0; eventIndex < events.length; eventIndex++) {
@@ -91,23 +91,23 @@ calApiRouter.get('/delete', isLoggedIn, function(req, res) {
             break;
         }
     }
-    
+
     // remove that event from array
     events.splice(eventIndex, 1);
-    
+
     // save updated user
     User.findOneAndUpdate({ 'twitterID': req.user.twitterID }, {$set: { 'events': events }}, { new: true }, function(err, updatedUser) {
         if (err) throw err;
-        
+
         // delete event
         Event.findOneAndRemove(newEvent, function(err) {
             if (err) throw err;
         });
     });
-    
+
     // AJAX request is expecting JSON back
     res.send({ "success": "Event deleted successfully" });
-    
+
 });
 
 module.exports = calApiRouter;

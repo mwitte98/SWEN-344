@@ -10,15 +10,18 @@
 
 <body ng-controller="homeCtrl">
 	<% include navbar %>
-    
+
 	<main>
 		<div class="container">
 			<h2 ng-model="welcomeTagline">Hey, <%= user.username %></h2>
 		</div>
-		
+
 		<div class="container">
 			<div class="row">
 				<div class="col-sm-6 col-sm-offset-3">
+
+					<% include chat %>
+
 					<form class="form-horizontal">
 						<div class="form-group">
 							<textarea name="tweet" ng-model="tweetField" id="tweetField" class="form-control" placeholder="What's happening?"></textarea>
@@ -40,5 +43,6 @@
 		</div>
 
 	</main>
+
 </body>
 </html>
