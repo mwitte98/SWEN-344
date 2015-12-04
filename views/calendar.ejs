@@ -69,8 +69,8 @@
                     $(element).addClass("clickableEvent");
                     $(element).click(function() {
                         document.getElementById("eventDetailsTitle").innerHTML = event.title;
-                        document.getElementById("eventDetailsStart").innerHTML = event.start.format('MMMM Do YYYY, h:mm a');
-                        document.getElementById("eventDetailsEnd").innerHTML = event.end.format('MMMM Do YYYY, h:mm a');
+                        document.getElementById("eventDetailsStart").innerHTML = event.start.format('M/D/YYYY h:mm a');
+                        document.getElementById("eventDetailsEnd").innerHTML = event.end.format('M/D/YYYY h:mm a');
                         document.getElementById("eventDetailsLocation").innerHTML = event.location;
                         document.getElementById("eventDetailsDesc").innerHTML = event.description;
                         $("#eventDetailsModal").modal('show');
@@ -88,12 +88,15 @@
                 var location = document.getElementById("addEventLocation").value;
                 var desc = document.getElementById("addEventDesc").value;
                 
-                // Convert dates to moment form
+                // Convert values to desired format
+                var titleText = title.replace(/<([^>]+?)([^>]*?)>(.*?)<\/\1>/ig, "").replace(/['"]+/g, "");
                 var startDate = moment(start, 'MM-DD-YYYY, h:mm a');
                 var endDate = moment(end, 'MM-DD-YYYY, h:mm a');
+                var locationText = location.replace(/<([^>]+?)([^>]*?)>(.*?)<\/\1>/ig, "").replace(/['"]+/g, "");
+                var descText = desc.replace(/<([^>]+?)([^>]*?)>(.*?)<\/\1>/ig, "").replace(/['"]+/g, "");
                 
                 // Validation
-                if ($.trim(title).length <= 0) {
+                if ($.trim(titleText).length <= 0) {
                     alert("The title must be filled in.");
                 }
                 else if (endDate.isBefore(startDate) || endDate.isSame(startDate)) {
@@ -108,11 +111,11 @@
                         url: '/calendar/new',
                         dataType: 'json',
                         data: {
-                            title: title,
+                            title: titleText,
                             start: startDate.toISOString(),
                             end: endDate.toISOString(),
-                            location: location,
-                            description: desc
+                            location: locationText,
+                            description: descText
                         },
                         success: function(doc) {
                             if (doc.error) {
@@ -122,11 +125,11 @@
                             else {
                                 // Render event on calendar after it's been created in db
                                 calendar.fullCalendar('renderEvent', {
-                                    title: title,
+                                    title: titleText,
                                     start: startDate,
                                     end: endDate,
-                                    location: location,
-                                    description: desc
+                                    location: locationText,
+                                    description: descText
                                 });
                                 
                                 // Remove values from add event modal and hide modal
@@ -171,8 +174,8 @@
                         // Remove event from calendar and hide modal
                         calendar.fullCalendar('removeEvents', function(event) {
                             if (event.title == title && 
-                                event.start.format('MMMM Do YYYY, h:mm a') == start && 
-                                event.end.format('MMMM Do YYYY, h:mm a') == end && 
+                                event.start.format('M/D/YYYY h:mm a') == start && 
+                                event.end.format('M/D/YYYY h:mm a') == end && 
                                 event.location == location && 
                                 event.description == desc) {
                                 return true;
@@ -220,15 +223,15 @@
                         <div class="modal-body">
                             <form>
                                 <div class="form-group">
-                                    <label for="addEventTitle" class="control-label">Event Title:</label>
+                                    <label for="addEventTitle" class="control-label">Event Title: *</label>
                                     <input type="text" class="form-control" id="addEventTitle">
                                 </div>
                                 <div class="form-group">
-                                    <label for="addEventStart" class="control-label">Start:</label>
+                                    <label for="addEventStart" class="control-label">Start: *</label>
                                     <input type="text" class="form-control" id="addEventStart" data-format="MM-DD-YYYY h:mm a" data-template="MMM D YYYY hh:mm a" name="datetime">
                                 </div>
                                 <div class="form-group">
-                                    <label for="addEventEnd" class="control-label">End:</label>
+                                    <label for="addEventEnd" class="control-label">End: *</label>
                                     <input type="text" class="form-control" id="addEventEnd" data-format="MM-DD-YYYY h:mm a" data-template="MMM D YYYY hh:mm a" name="datetime">
                                 </div>
                                 <div class="form-group">

@@ -93,7 +93,7 @@ calApiRouter.get('/delete', isLoggedIn, function(req, res) {
     }
     
     // remove that event from array
-    events = events.splice(eventIndex, 1);
+    events.splice(eventIndex, 1);
     
     // save updated user
     User.findOneAndUpdate({ 'twitterID': req.user.twitterID }, {$set: { 'events': events }}, { new: true }, function(err, updatedUser) {
