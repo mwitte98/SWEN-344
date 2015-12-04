@@ -73,26 +73,28 @@ describe('Project Freebird', function() {
 
    /**
     * Test to ensure a calendar event can be added. Adds an event
-    * taking place tomorrow and checks to see if it stays there after
-    * logging out and logging back in.
+    * taking place tomorrow and checks to see if it stays there.
     */
-   it('Should not be able to purchase stocks until valid stock is selected', function() {
-     var tomorrowDate = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
-     var tomorrowDay = tomorrowDate.getDate();
+   it('Should be able to add a calendar event for tomorrow', function() {
+     var randomEventTitle = "Test Event " + getRandomInt(0,100000);
      browser.get("http://localhost:8080/calendar");
-     element.all(by.css('.fc-state-highlight')).get(0).click();
+     element.all(by.css('.fc-future')).get(0).click();
      var eventTitle = element(by.id('addEventTitle'));
-     browser.wait(eventTitle.isPresent);
+     var EC = protractor.ExpectedConditions;
+     browser.wait(EC.visibilityOf(eventTitle), 5000);
      eventTitle.sendKeys('Test Event');
      var eventLocation = element(by.id('addEventLocation'));
      eventLocation.sendKeys('Test Location');
      var eventDesc = element(by.id('addEventDesc'));
      eventDesc.sendKeys('Test Description');
-     var startHour = element(by.css('.hour'));
-     selectDropdownbyNum(startHour, 11);
-     var startAmPm = element(by.css('.ampm'));
-     selectDropdownbyNum(startAmPm, 'pm');
+     var ampm = element.all(by.css('.ampm')).get(1);
+     ampm.$('[value="pm"]').click();
      element(by.id('addEventSubmit')).click();
+     browser.get("http://localhost:8080/calendar");
+     element(by.css('.fc-event')).click();
+     var eventTitle = element(by.id('eventDetailsTitle'));
+     browser.wait(EC.visibilityOf(eventTitle), 5000);
+     expect(eventTitle.getText()).toEqual(randomEventTitle);
    });
 
 
@@ -135,13 +137,14 @@ describe('Project Freebird', function() {
   /**
    * Selects an option number of a dropdown menu.
    */
-   function selectDropdownbyNum(element, optionNum ) {
-     if (optionNum){
-       var options = element.findElements(by.tagName('option')).then(function(options){
-          options[optionNum].click();
-        });
-     }
-   };
+   function selectDropdownbyNum(element, optionNum) {
+       if (optionNum){
+         var options = element.findElements(by.tagName('option'))
+           .then(function(options){
+             options[optionNum].click();
+           });
+       }
+     };
 
 
 });
