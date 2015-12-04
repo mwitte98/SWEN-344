@@ -187,6 +187,39 @@
                 });
             });
             
+            // Called when download event button is clicked on details/delete modal
+            $('#downloadEvent').click(function(e) {
+                // Get event details to know which event to download
+                var title = document.getElementById("eventDetailsTitle").innerText;
+                var start = document.getElementById("eventDetailsStart").innerText;
+                var end = document.getElementById("eventDetailsEnd").innerText;
+                var location = document.getElementById("eventDetailsLocation").innerText;
+                var desc = document.getElementById("eventDetailsDesc").innerText;
+                
+                // Convert dates to moment form
+                var startDate = moment(start, 'MM-DD-YYYY, h:mm a');
+                var endDate = moment(end, 'MM-DD-YYYY, h:mm a');
+                
+                var event = {
+                    title: title,
+                    start: startDate.toISOString(),
+                    end: endDate.toISOString(),
+                    location: location,
+                    description: desc
+                }
+                
+                if (navigator.msSaveOrOpenBlob) { //browser is IE
+                    e.preventDefault();
+                    var blob = new Blob([JSON.stringify(event)], {type:'application/json'});
+                    navigator.msSaveOrOpenBlob(blob, 'data.json');
+                }
+                else {
+                    this.download = title + ".json";
+                    this.href = 'data:application/json,' + encodeURIComponent(JSON.stringify(event));
+                }
+                $("#eventDetailsModal").modal('hide');
+            });
+            
             $(function(){
                 $('#addEventStart').combodate({
                     minYear: 2015,
@@ -280,7 +313,7 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <a href="#" download="event.json" class="btn btn-primary" id="downloadEvent" style="float: left;">Download Event</a>
                             <button type="submit" class="btn btn-danger" id="eventDetailsSubmit">Delete</button>
                         </div>
                     </div>
