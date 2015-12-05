@@ -4,15 +4,10 @@ module.exports = function(io) {
 
    io.on('connection', function(socket) {
 
-      // ***** New Socket Connection *****
-
-      console.log("A user connected");
+      // ***** On New Socket Connection *****
 
       Message.find({}, { _id: false, sender: true, body: true }, function(err, messages) {
         if (err) throw err;
-
-        // Log Messages
-        console.log("All Messages:" + messages);
 
         io.emit('chat history', {messages: messages});
 
@@ -43,10 +38,6 @@ module.exports = function(io) {
 
          });
 
-      });
-
-      socket.on('disconnect', function(){
-         console.log('user disconnected');
       });
 
 

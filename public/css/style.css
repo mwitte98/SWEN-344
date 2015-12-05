@@ -1,9 +1,37 @@
-/* Custom Styles Here */
+/* Message History Styles */
+
+.message-history-title {
+
+   margin: 1em 0;
+   padding: 0;
+
+   text-align: center;
+
+}
+
+#message-history-well {
+
+   height: 600px;
+   overflow-y: scroll;
+
+}
+
+#message-history-list {
+
+   margin: 0;
+   padding: 0;
+
+   list-style: none;
+
+}
+
+
+/* Pop-Up Chat Styles */
 
 #messagesContainer {
 
    position: fixed;
-   bottom: 0;
+   bottom: -300px;
    right: 4em;
 
    height: 300px;
@@ -22,7 +50,7 @@
 .chatTitle {
 
    position: fixed;
-   bottom: 300px;
+   bottom: 0px;
    right: 4em;
 
    width: 250px;
@@ -54,6 +82,8 @@
 }
 
 #messageList {
+
+   display: none;
 
    margin: 0;
    padding: 1em 1.25em;
@@ -120,6 +150,8 @@
 }
 
 #messageTextInput {
+
+   display: none;
 
    outline: none;
 

@@ -16,9 +16,19 @@
       <div class="container">
 			<div class="row">
 				<div class="col-sm-6 col-sm-offset-3">
-
-					Full Message History Goes Here
-
+					<h2 class="message-history-title">Message History</h2>
+					<div id="message-history-well" class="well">
+					<ul id="message-history-list">
+					<% for(var i=0; i<messages.length; i++) {%>
+						<% if (messages[i].sender == user.displayName) {%>
+							<li class='message messageMe'>
+						<% } else { %>
+							<li class='message messageNotMe'>
+						<% } %>
+						<p class='sender'><%=messages[i].sender%></p><p class='body'><%=messages[i].body%></p></li>
+					<% } %>
+					</ul>
+				</div>
 				</div>
 			</div>
 		</div>
@@ -34,6 +44,17 @@
 		</div>
 
 	</main>
+
+	<script>
+
+		scrollMessagesToBottom();
+
+		function scrollMessagesToBottom() {
+	      var msgHistoryWell = document.getElementById('message-history-well');
+	      msgHistoryWell.scrollTop = msgHistoryWell.scrollHeight;
+	   }
+
+	</script>
 
 </body>
 </html>

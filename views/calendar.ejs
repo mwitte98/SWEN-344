@@ -39,27 +39,27 @@
                                 var reader = new FileReader();
                                 reader.onload = function(){
                                     var text = reader.result;
-                                    
+
                                     try {
                                         var event = JSON.parse(text);
-                                        
+
                                         var title = event.title;
                                         var start = event.start;
                                         var end = event.end;
                                         var location = event.location;
                                         var desc = event.description;
-                                        
+
                                         // Convert values to desired format
                                         var titleText = title.replace(/<([^>]+?)([^>]*?)>(.*?)<\/\1>/ig, "").replace(/['"]+/g, "");
                                         var startDate = moment(start);
                                         var endDate = moment(end);
                                         var locationText = location.replace(/<([^>]+?)([^>]*?)>(.*?)<\/\1>/ig, "").replace(/['"]+/g, "");
                                         var descText = desc.replace(/<([^>]+?)([^>]*?)>(.*?)<\/\1>/ig, "").replace(/['"]+/g, "");
-                                        
+
                                         if (!startDate.isValid() || ! endDate.isValid()) {
                                             throw "";
                                         }
-                        
+
                                         // Validation
                                         if ($.trim(titleText).length <= 0) {
                                             alert("The title must be filled in.");
@@ -151,7 +151,7 @@
                             defaultDate += "0";
                         }
                         defaultDate += date.date() + "-" + date.year() + " 12:00 am";
-                        
+
                         document.getElementById("addEventTitle").value = '';
                         $('#addEventStart').combodate('setValue', defaultDate);
                         $('#addEventEnd').combodate('setValue', defaultDate);
@@ -185,7 +185,7 @@
                 var end = document.getElementById("addEventEnd").value;
                 var location = document.getElementById("addEventLocation").value;
                 var desc = document.getElementById("addEventDesc").value;
-                
+
                 // Convert values to desired format
                 var titleText = title.replace(/<([^>]+?)([^>]*?)>(.*?)<\/\1>/ig, "").replace(/['"]+/g, "");
                 var startDate = moment(start, 'MM-DD-YYYY, h:mm a');
@@ -229,7 +229,7 @@
                                     location: locationText,
                                     description: descText
                                 });
-                                
+
                                 // Remove values from add event modal and hide modal
                                 document.getElementById("addEventTitle").value = '';
                                 $('#addEventStart').combodate('setValue', null);
@@ -271,10 +271,10 @@
                     success: function(doc) {
                         // Remove event from calendar and hide modal
                         calendar.fullCalendar('removeEvents', function(event) {
-                            if (event.title == title && 
-                                event.start.format('M/D/YYYY h:mm a') == start && 
-                                event.end.format('M/D/YYYY h:mm a') == end && 
-                                event.location == location && 
+                            if (event.title == title &&
+                                event.start.format('M/D/YYYY h:mm a') == start &&
+                                event.end.format('M/D/YYYY h:mm a') == end &&
+                                event.location == location &&
                                 event.description == desc) {
                                 return true;
                             }
@@ -284,7 +284,7 @@
                     }
                 });
             });
-            
+
             // Called when download event button is clicked on details/delete modal
             $('#downloadEvent').click(function(e) {
                 // Get event details to know which event to download
@@ -293,11 +293,11 @@
                 var end = document.getElementById("eventDetailsEnd").innerText;
                 var location = document.getElementById("eventDetailsLocation").innerText;
                 var desc = document.getElementById("eventDetailsDesc").innerText;
-                
+
                 // Convert dates to moment form
                 var startDate = moment(start, 'MM-DD-YYYY, h:mm a');
                 var endDate = moment(end, 'MM-DD-YYYY, h:mm a');
-                
+
                 var event = {
                     title: title,
                     start: startDate.toISOString(),
@@ -305,7 +305,7 @@
                     location: location,
                     description: desc
                 }
-                
+
                 if (navigator.msSaveOrOpenBlob) { //browser is IE
                     e.preventDefault();
                     var blob = new Blob([JSON.stringify(event)], {type:'application/json'});
@@ -317,7 +317,7 @@
                 }
                 $("#eventDetailsModal").modal('hide');
             });
-            
+
             $(function(){
                 $('#addEventStart').combodate({
                     minYear: 2015,
@@ -345,7 +345,7 @@
         <div class="container">
             <!-- Hide file input. Gets clicked when calendar custom button is clicked -->
             <input type="file" accept="application/json" id="fileInput" style="display: none;" />
-            
+
             <!-- Add event modal -->
             <div class="modal fade" id="addEventModal" tabindex="-1" role="dialog" aria-labelledby="addEventModalLabel">
                 <div class="modal-dialog" role="document">
