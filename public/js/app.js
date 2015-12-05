@@ -92,7 +92,7 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
   function getChartQuote(symbol) {
 
     var chartUrl = "/stocks/chart?symbol=" + symbol;
-
+    getStocks();
     var chartRequest = $http.get(chartUrl).then( function(response) {
 
       $scope.stockQuoteChart = response.data;
@@ -132,6 +132,8 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
 
    });
 
+  //console.log(thing);
+
   }
 
   $scope.stockBuy = function() {
@@ -142,7 +144,8 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
     var stockData = {
       lastPrice: $scope.stockQuote.LastPrice,
       date: new Date(),
-      buyAmount: $scope.purchaseAmount
+      buyAmount: $scope.purchaseAmount,
+      stock: $scope.searchField
     }
 
     var request = $http.post("/stocks/stockBuy", stockData);
@@ -159,10 +162,38 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
 
     $scope.amountOwned -= $scope.sellAmount;
     var stockData = {
-      sellAmount: $scope.sellAmount
+      lastPrice: $scope.stockQuote.LastPrice,
+      date: new Date(),
+      sellAmount: $scope.sellAmount,
+      stock: $scope.searchField
     }
 
     var request = $http.post("/stocks/stockSell", stockData);
+  }
+
+  getStocks = function() {
+    $scope.stocks = [];
+    $scope.amountOwned = 0;
+    $http.get("/stocks/getStock").then(function(res) {
+      res.data.forEach(function(transaction) {
+        console.log(transaction);
+        if (transaction.stock.toLowerCase() == $scope.searchField.toLowerCase()) {
+          $scope.amountOwned += transaction.amount;
+          $scope.stocks.push(transaction);
+        }
+      });
+    
+      /*
+      for (item in x) {
+        console.log(x);
+        console.log(item);
+        if (item.stock.toLowerCase() == $scope.searchField.toLowerCase()) {
+          $scope.stocks.push(item);
+        }
+      }
+      */
+
+    });
   }
 
 });

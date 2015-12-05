@@ -3,7 +3,9 @@
 
 
 var stocksApiRouter = require('express').Router();
-var http = require('http');
+var http            = require('http');
+var User            = require('../app/models/user');
+var Transaction     = require('../app/models/transaction');
 
 // This will get called every time someone uses this route (/stocks)
 stocksApiRouter.use(function(req, res, next) {
@@ -112,13 +114,55 @@ stocksApiRouter.get('/chart', isLoggedIn, function(req, res) {
 });
 
 stocksApiRouter.post('/stockBuy', function(req, res) {
-    console.log(req.body);
+
+    var newTransaction = Transaction({
+        price: req.body.lastPrice,
+        date: req.body.date,
+        amount: req.body.buyAmount,
+        stock: req.body.stock
+    });
+
+    var stocks = req.user.stocks;
+    console.log(stocks);
+
+    stocks.push(newTransaction);
+
+    newTransaction.save(function(err) {
+        User.findOneAndUpdate({ 'twitterID': req.user.twitterID }, {$set: {'stocks': stocks}}, { new: true}, function(err, updatedUser) {
+            if (err) throw err;
+        });
+    })
+
+    console.log(newTransaction);
+    res.send("Success: Stock transaction saved");
 
 })
 
 stocksApiRouter.post('/stockSell', function(req, res) {
-    console.log(req.body);
+    var newTransaction = Transaction({
+        price: req.body.lastPrice,
+        date: req.body.date,
+        amount: (req.body.sellAmount*-1),
+        stock: req.body.stock
+    });
+
+    var stocks = req.user.stocks;
+    console.log(stocks);
+
+    stocks.push(newTransaction);
     
+    newTransaction.save(function(err) {
+        User.findOneAndUpdate({ 'twitterID': req.user.twitterID }, {$set: {'stocks': stocks}}, { new: true}, function(err, updatedUser) {
+            if (err) throw err;
+        });
+    })
+
+    res.send("Success: Stock transaction saved");
+    
+})
+
+stocksApiRouter.get('/getStock', function(req, res) {
+    res.send(req.user.stocks);
 })
 
 module.exports = stocksApiRouter;
