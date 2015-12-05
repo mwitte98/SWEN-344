@@ -64,6 +64,15 @@
       </div>
 
       <div class="well">
+      <p> Current Note: {{displayNote}}</p>
+      <form ng-submit="addNote()">
+        <textarea ng-model="noteDesc">Enter new note here</textarea>
+        <input type="submit" class="btn btn-small btn-primary" value="Add Note" ng-disabled="disable">
+      </form>
+
+      </div>
+
+      <div class="well">
         Transaction History:
         <div ng-repeat="transaction in allStocks">
         <p> Stock: {{transaction.stock}}<br>

@@ -9,7 +9,8 @@ var userSchema = new Schema({
     displayName: String,
     username: String,
     events: [],
-    stocks: []
+    stocks: [],
+    notes: []
 });
 
 // the schema is useless so far

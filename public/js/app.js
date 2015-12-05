@@ -94,6 +94,7 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
 
     var chartUrl = "/stocks/chart?symbol=" + symbol;
     getStocks();
+    getNotes();
     var chartRequest = $http.get(chartUrl).then( function(response) {
 
       $scope.stockQuoteChart = response.data;
@@ -133,7 +134,6 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
 
    });
 
-  //console.log(thing);
 
   }
 
@@ -172,6 +172,17 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
     var request = $http.post("/stocks/stockSell", stockData);
   }
 
+  $scope.addNote = function() {
+    var noteData = {
+      desc: $scope.noteDesc,
+      stock: $scope.searchField
+    }
+
+    var request = $http.post("/stocks/addNote", noteData).then(function(res) {
+      getNotes();
+    });
+  }
+
   getStocks = function() {
     $scope.stocks = [];
     $scope.amountOwned = 0;
@@ -179,27 +190,31 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
     $http.get("/stocks/getStock").then(function(res) {
       $scope.allStocks = res.data;
       res.data.forEach(function(transaction) {
-        console.log(transaction);
-        if (transaction.stock.toLowerCase() == $scope.searchField.toLowerCase()) {
-          $scope.profit += (transaction.amount * transaction.price);
-          $scope.amountOwned += transaction.amount;
-          $scope.stocks.push(transaction);
+        if ($scope.searchField) {
+          if (transaction.stock.toLowerCase() == $scope.searchField.toLowerCase()) {
+            $scope.profit += (transaction.amount * transaction.price);
+            $scope.amountOwned += transaction.amount;
+            $scope.stocks.push(transaction);
+          }
         }
       });
-    
-      /*
-      for (item in x) {
-        console.log(x);
-        console.log(item);
-        if (item.stock.toLowerCase() == $scope.searchField.toLowerCase()) {
-          $scope.stocks.push(item);
-        }
-      }
-      */
-
     });
   }
 
+  getNotes = function() {
+    $scope.displayNote = ''
+    $http.get("/stocks/getNotes").then(function(res) {
+      res.data.forEach(function(note) {
+        if ($scope.searchField) {
+          if (note.stock == $scope.searchField) {
+            $scope.displayNote = note.desc;
+          }
+        }
+      })
+    })
+  }
+
   getStocks();
+  getNotes();
 
 });

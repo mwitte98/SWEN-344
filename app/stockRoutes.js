@@ -6,6 +6,7 @@ var stocksApiRouter = require('express').Router();
 var http            = require('http');
 var User            = require('../app/models/user');
 var Transaction     = require('../app/models/transaction');
+var Note            = require('../app/models/note');
 
 // This will get called every time someone uses this route (/stocks)
 stocksApiRouter.use(function(req, res, next) {
@@ -147,10 +148,9 @@ stocksApiRouter.post('/stockSell', function(req, res) {
     });
 
     var stocks = req.user.stocks;
-    console.log(stocks);
 
     stocks.push(newTransaction);
-    
+
     newTransaction.save(function(err) {
         User.findOneAndUpdate({ 'twitterID': req.user.twitterID }, {$set: {'stocks': stocks}}, { new: true}, function(err, updatedUser) {
             if (err) throw err;
@@ -161,8 +161,40 @@ stocksApiRouter.post('/stockSell', function(req, res) {
     
 })
 
+stocksApiRouter.post("/addNote", function(req, res) {
+    var newNote = Note({
+        desc: req.body.desc,
+        stock: req.body.stock
+    })
+
+    var notes = req.user.notes;
+
+    if (notes.length == 0) {
+        notes.push(newNote);
+    } else {
+        for (var noteIndex=0; noteIndex < notes.length; noteIndex++) {
+            var note = notes[noteIndex];
+            if (note.stock == newNote.stock) {
+                notes.splice(noteIndex, 1);
+            }
+            break
+        }
+        notes.push(newNote);
+    }
+    newNote.save(function(err) {
+        User.findOneAndUpdate({ 'twitterID': req.user.twitterID }, {$set: {'notes': notes}}, { new: true}, function(err, updatedUser) {
+            if (err) throw err;
+        });
+    })
+    res.send("Success: Note Added!")
+})
+
 stocksApiRouter.get('/getStock', function(req, res) {
     res.send(req.user.stocks);
+})
+
+stocksApiRouter.get('/getNotes', function(req, res) {
+    res.send(req.user.notes);
 })
 
 module.exports = stocksApiRouter;
