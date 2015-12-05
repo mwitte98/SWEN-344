@@ -44,6 +44,7 @@ require('./app/routes.js')(app, passport, Twit);
 // PRIVATE API routes
 app.use('/stocks', require('./app/stockRoutes.js'));
 app.use('/calendar', require('./app/calendarRoutes.js'));
+app.use('/messages', require('./app/messagesRoutes.js'));
 
 
 // START SERVER

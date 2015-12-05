@@ -10,10 +10,6 @@ module.exports = function(app, passport, Twit) {
         res.render('index.ejs', {user : req.user}); // get the user out of session and pass to template
     });
 
-    app.get('/messages', isLoggedIn, function(req, res) {
-        res.render('messages.ejs', {user : req.user}); // get the user out of session and pass to template
-    });
-
     app.get('/logout', isLoggedIn, function(req, res) {
         req.logout();
         res.redirect('/');
