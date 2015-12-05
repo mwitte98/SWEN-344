@@ -10,6 +10,7 @@
 
 <body ng-controller="homeCtrl">
 	<% include navbar %>
+    <% include chat %>
 
 	<main>
 		<div class="container">
@@ -18,10 +19,40 @@
 
 		<div class="container">
 			<div class="row">
-				<div class="col-sm-6 col-sm-offset-3">
-
-					<% include chat %>
-
+                <div class="col-xs-5">
+                    <!-- Today's events -->
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Today's Events</h3>
+                        </div>
+                        <div class="panel-body">
+                            <% for (var i=0; i < events.length; i++) { %>
+                                <strong><%= events[i].title %></strong><br>
+                                <% if (events[i].location != "") { %>
+                                    Location: <%= events[i].location %><br>
+                                <% } %>
+                                Start: <%= events[i].start %><br>
+                                End: <%= events[i].end %>
+                                <% if (i < events.length - 1) { %>
+                                    <br>
+                                <% } %>
+                            <% } %>
+                        </div>
+                    </div>
+                    
+                    <!-- Top 5 Stocks -->
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Top 5 Stocks</h3>
+                        </div>
+                        <div class="panel-body">
+                            Top 5 Stocks
+                        </div>
+                    </div>
+                </div>
+                
+				<div class="col-xs-offset-1 col-xs-6">
+                    <!-- Post tweet form -->
 					<form class="form-horizontal">
 						<div class="form-group">
 							<textarea name="tweet" ng-model="tweetField" id="tweetField" class="form-control" placeholder="What's happening?"></textarea>
@@ -30,18 +61,18 @@
 							<button type="submit" ng-click="postTweet()" class="btn btn-md btn-primary">Tweet</button>
 						</div>
 					</form>
+                    
+                    <!-- Twitter feed -->
+                    <div infinite-scroll="getTweets()" infinite-scroll-distance="3" infinite-scroll-disabled="infiniteScrolling">
+                        <div class="row">
+                            <div ng-repeat="tweet in tweetsToShow | limitTo: limit">
+                                <div ng-bind-html="tweet.oEmbed.html"></div>
+                            </div>
+                        </div>
+                    </div>
 				</div>
 			</div>
 		</div>
-
-		<div class="container" infinite-scroll="getTweets()" infinite-scroll-distance="3" infinite-scroll-disabled="infiniteScrolling">
-			<div class="row">
-				<div style="text-align: center;" ng-repeat="tweet in tweetsToShow | limitTo: limit">
-					<div ng-bind-html="tweet.oEmbed.html"></div>
-				</div>
-			</div>
-		</div>
-
 	</main>
 
 </body>

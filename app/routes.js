@@ -1,13 +1,32 @@
 module.exports = function(app, passport, Twit) {
 
     var configAuth = require('../app/config/auth.js');
+    var moment = require('moment');
 
     app.get('/login', function(req, res) {
         res.render('login');
     });
 
     app.get('/', isLoggedIn, function(req, res) {
-        res.render('index.ejs', {user : req.user}); // get the user out of session and pass to template
+        var today = new Date();
+        var todayString = today.toDateString();
+        var todaysEvents = [];
+        var events = req.user.events;
+        
+        for (var i = 0; i < events.length; i++) {
+            var event = events[i];
+            var startDate = new Date(event.start);
+            var endDate = new Date(event.end);
+            var startString = startDate.toDateString();
+            var endString = endDate.toDateString();
+            if (startString <= todayString && todayString <= endString) {
+                event.start = moment(event.start).format('M/D/YYYY h:mm a');
+                event.end = moment(event.end).format('M/D/YYYY h:mm a');
+                todaysEvents.push(event);
+            }
+        }
+        
+        res.render('index.ejs', {user : req.user, events: todaysEvents}); // get the user out of session and pass to template
     });
 
     app.get('/messages', isLoggedIn, function(req, res) {
@@ -57,7 +76,7 @@ module.exports = function(app, passport, Twit) {
         Twitter.get('statuses/home_timeline', {count: 200},  function(err, data, response) {
             tweets = data;
             if (tweets.length === 0) {
-                res.send(null);
+                return res.send(null);
             }
             tweets.forEach(function(tweet) {
                 getOEmbed(tweet);

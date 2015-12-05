@@ -17,7 +17,7 @@ swenApp.controller('homeCtrl', function($scope, $resource, $timeout, $q, $rootSc
                 $scope.tweetsToShow = res;
                 
                 if ($scope.tweetsToShow == null) {
-                    console.log("No tweets returned");
+                    alert("You have temporarily hit your Twitter request limit. Please try again in 15 minutes.");
                     return;
                 }
                 
