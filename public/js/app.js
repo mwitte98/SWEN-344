@@ -68,6 +68,7 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
   $scope.purchaseAmount = 0;
   $scope.sellAmount = 0;
   $scope.amountOwned = 0;
+  $scope.profit = 0;
 
    // Gets a stock quote given a symbol and displays a graphical representation
    $scope.getStockQuote = function() {
@@ -174,10 +175,12 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
   getStocks = function() {
     $scope.stocks = [];
     $scope.amountOwned = 0;
+    $scope.profit = 0;
     $http.get("/stocks/getStock").then(function(res) {
       res.data.forEach(function(transaction) {
         console.log(transaction);
         if (transaction.stock.toLowerCase() == $scope.searchField.toLowerCase()) {
+          $scope.profit += (transaction.amount * transaction.price);
           $scope.amountOwned += transaction.amount;
           $scope.stocks.push(transaction);
         }
