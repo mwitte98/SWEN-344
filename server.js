@@ -9,12 +9,19 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
 
+// ********** Socket IO Setup **********
+
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
+
+require('./app/config/socket')(io);
+
+// ********** End Socket IO Setup **********
+
 var Twit = require('twit');
 
-// var configDB = require('./config/database.js');
-
 // Config database connection
-mongoose.connect('mongodb://localhost/user');
+mongoose.connect('mongodb://localhost/SWEN344');
 
 require('./app/config/passport')(passport); // pass passport for configuration
 
@@ -39,10 +46,9 @@ app.use('/stocks', require('./app/stockRoutes.js'));
 app.use('/calendar', require('./app/calendarRoutes.js'));
 
 
-
 // START SERVER
 
 // Listen on 'port' -> localhost:8080
-app.listen(port, function() {
+server.listen(port, function() {
    console.log("The magic happens on port " + port);
 });

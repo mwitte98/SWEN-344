@@ -2,57 +2,431 @@
 <html ng-app='swenApp'>
 <head>
 
-	<% include header %>
+    <% include header %>
+
+	<title>Calendar</title>
 
 	<!-- Calendar Scripts -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.js"></script>
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.4.0/fullcalendar.min.js"></script>
 	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.4.0/fullcalendar.min.css">
+    <script src="js/combodate.js"></script>
 
-   <script>
+	<script>
 
-      $(document).ready(function() {
-          $('#calendar').fullCalendar({
-              // put your options and callbacks here
-          })
-      });
+		$(document).ready(function() {
+            var calendar = $('#calendar');
+		    calendar.fullCalendar({
+                customButtons: {
+                    addEventButton: {
+                        text: 'Add Event',
+                        click: function() {
+                            document.getElementById("addEventTitle").value = '';
+                            $('#addEventStart').combodate('setValue', '');
+                            $('#addEventEnd').combodate('setValue', '');
+                            document.getElementById("addEventLocation").value = '';
+                            document.getElementById("addEventDesc").value = '';
+                            $("#addEventModal").modal('show');
+                        }
+                    },
+                    uploadEventButton: {
+                        text: 'Upload Event',
+                        click: function() {
+                            var fileInput = document.getElementById("fileInput");
+                            fileInput.click();
+                            fileInput.addEventListener("change", function(event) {
+                                // When  fileInput has changed, there are new files
+                                var reader = new FileReader();
+                                reader.onload = function(){
+                                    var text = reader.result;
+                                    
+                                    try {
+                                        var event = JSON.parse(text);
+                                        
+                                        var title = event.title;
+                                        var start = event.start;
+                                        var end = event.end;
+                                        var location = event.location;
+                                        var desc = event.description;
+                                        
+                                        // Convert values to desired format
+                                        var titleText = title.replace(/<([^>]+?)([^>]*?)>(.*?)<\/\1>/ig, "").replace(/['"]+/g, "");
+                                        var startDate = moment(start);
+                                        var endDate = moment(end);
+                                        var locationText = location.replace(/<([^>]+?)([^>]*?)>(.*?)<\/\1>/ig, "").replace(/['"]+/g, "");
+                                        var descText = desc.replace(/<([^>]+?)([^>]*?)>(.*?)<\/\1>/ig, "").replace(/['"]+/g, "");
+                                        
+                                        if (!startDate.isValid() || ! endDate.isValid()) {
+                                            throw "";
+                                        }
+                        
+                                        // Validation
+                                        if ($.trim(titleText).length <= 0) {
+                                            alert("The title must be filled in.");
+                                        }
+                                        else if (endDate.isBefore(startDate) || endDate.isSame(startDate)) {
+                                            alert("The end date must be after the start date.");
+                                        }
+                                        else if (startDate.isBefore(moment())) {
+                                            alert("Events cannot be created in the past.");
+                                        }
+                                        else {
+                                            // Create event in db
+                                            $.ajax({
+                                                url: '/calendar/new',
+                                                dataType: 'json',
+                                                data: {
+                                                    title: titleText,
+                                                    start: startDate.toISOString(),
+                                                    end: endDate.toISOString(),
+                                                    location: locationText,
+                                                    description: descText
+                                                },
+                                                success: function(doc) {
+                                                    if (doc.error) {
+                                                        // Event already exists so alert user and don't create event
+                                                        alert("This event already exists.");
+                                                    }
+                                                    else {
+                                                        // Render event on calendar after it's been created in db
+                                                        calendar.fullCalendar('renderEvent', {
+                                                            title: titleText,
+                                                            start: startDate,
+                                                            end: endDate,
+                                                            location: locationText,
+                                                            description: descText
+                                                        });
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    }
+                                    catch(error) {
+                                        alert("The file input is not in correct format.");
+                                    }
+                                };
+                                reader.readAsText(fileInput.files[0]);
+                            }, false);
+                        }
+                    }
+                },
+                header: {
+                    left: 'title',
+                    center: '',
+                    right: 'addEventButton uploadEventButton today prev,next'
+                },
+                // Pull user's events from db. Called on page load and when changing months.
+                events: function(start, end, timezone, callback) {
+                    $.ajax({
+                        url: '/calendar/all',
+                        dataType: 'json',
+                        data: {},
+                        success: function(results) {
+                            var events = [];
+                            $(results).each(function() {
+                                events.push({
+                                    title: $(this).attr('title'),
+                                    start: moment($(this).attr('start')),
+                                    end: moment($(this).attr('end')),
+                                    location: $(this).attr('location'),
+                                    description: $(this).attr('description')
+                                });
+                            });
+                            callback(events);
+                        }
+                    });
+                },
+                // Pop up add event modal when a day is clicked.
+                // Set default start and end dates to the date that was clicked.
+			    dayClick: function(date, jsEvent, view) {
+                    var currentDate = calendar.fullCalendar('getDate');
+                    if (currentDate.month() == date.month()) {
+                        var defaultDate = "";
+                        var month = date.month() + 1; //months are 0-11
+                        if (month < 10) {
+                            defaultDate += "0";
+                        }
+                        defaultDate += month + "-";
+                        if (date.date() < 10)  {
+                            defaultDate += "0";
+                        }
+                        defaultDate += date.date() + "-" + date.year() + " 12:00 am";
+                        
+                        document.getElementById("addEventTitle").value = '';
+                        $('#addEventStart').combodate('setValue', defaultDate);
+                        $('#addEventEnd').combodate('setValue', defaultDate);
+                        document.getElementById("addEventLocation").value = '';
+                        document.getElementById("addEventDesc").value = '';
+                        $("#addEventModal").modal('show');
+                    }
+				},
+                // Called when an event is rendered on the calendar.
+                // Add css class to make event appear clickable.
+                // Show details/delete modal when clicking on an event
+                eventRender: function(event, element) {
+                    $(element).addClass("clickableEvent");
+                    $(element).click(function() {
+                        document.getElementById("eventDetailsTitle").innerHTML = event.title;
+                        document.getElementById("eventDetailsStart").innerHTML = event.start.format('M/D/YYYY h:mm a');
+                        document.getElementById("eventDetailsEnd").innerHTML = event.end.format('M/D/YYYY h:mm a');
+                        document.getElementById("eventDetailsLocation").innerHTML = event.location;
+                        document.getElementById("eventDetailsDesc").innerHTML = event.description;
+                        $("#eventDetailsModal").modal('show');
+                    });
+                },
+                fixedWeekCount: false
+			});
 
-      $('#calendar').fullCalendar({
-          dayClick: function() {
-              alert('a day has been clicked!');
-          }
-      });
+            // Called when add button is clicked on add event modal
+            $('#addEventSubmit').click(function() {
+                // Get form values
+                var title = document.getElementById("addEventTitle").value;
+                var start = document.getElementById("addEventStart").value;
+                var end = document.getElementById("addEventEnd").value;
+                var location = document.getElementById("addEventLocation").value;
+                var desc = document.getElementById("addEventDesc").value;
+                
+                // Convert values to desired format
+                var titleText = title.replace(/<([^>]+?)([^>]*?)>(.*?)<\/\1>/ig, "").replace(/['"]+/g, "");
+                var startDate = moment(start, 'MM-DD-YYYY, h:mm a');
+                var endDate = moment(end, 'MM-DD-YYYY, h:mm a');
+                var locationText = location.replace(/<([^>]+?)([^>]*?)>(.*?)<\/\1>/ig, "").replace(/['"]+/g, "");
+                var descText = desc.replace(/<([^>]+?)([^>]*?)>(.*?)<\/\1>/ig, "").replace(/['"]+/g, "");
 
-   </script>
+                // Validation
+                if ($.trim(titleText).length <= 0) {
+                    alert("The title must be filled in.");
+                }
+                else if (endDate.isBefore(startDate) || endDate.isSame(startDate)) {
+                    alert("The end date must be after the start date.");
+                }
+                else if (startDate.isBefore(moment())) {
+                    alert("Events cannot be created in the past.");
+                }
+                else {
+                    // Create event in db
+                    $.ajax({
+                        url: '/calendar/new',
+                        dataType: 'json',
+                        data: {
+                            title: titleText,
+                            start: startDate.toISOString(),
+                            end: endDate.toISOString(),
+                            location: locationText,
+                            description: descText
+                        },
+                        success: function(doc) {
+                            if (doc.error) {
+                                // Event already exists so alert user and don't create event
+                                alert("This event already exists.");
+                            }
+                            else {
+                                // Render event on calendar after it's been created in db
+                                calendar.fullCalendar('renderEvent', {
+                                    title: titleText,
+                                    start: startDate,
+                                    end: endDate,
+                                    location: locationText,
+                                    description: descText
+                                });
+                                
+                                // Remove values from add event modal and hide modal
+                                document.getElementById("addEventTitle").value = '';
+                                $('#addEventStart').combodate('setValue', null);
+                                $('#addEventEnd').combodate('setValue', null);
+                                document.getElementById("addEventLocation").value = '';
+                                document.getElementById("addEventDesc").value = '';
+                                $("#addEventModal").modal('hide');
+                            }
+                        }
+                    });
+
+                }
+            });
+
+            // Called when delete button is clicked on details/delete modal
+            $('#eventDetailsSubmit').click(function() {
+                // Get event details to know which event to delete
+                var title = document.getElementById("eventDetailsTitle").innerText;
+                var start = document.getElementById("eventDetailsStart").innerText;
+                var end = document.getElementById("eventDetailsEnd").innerText;
+                var location = document.getElementById("eventDetailsLocation").innerText;
+                var desc = document.getElementById("eventDetailsDesc").innerText;
+
+                // Convert dates to moment form
+                var startDate = moment(start, 'MM-DD-YYYY, h:mm a');
+                var endDate = moment(end, 'MM-DD-YYYY, h:mm a');
+
+                // Delete event in db
+                $.ajax({
+                    url: '/calendar/delete',
+                    dataType: 'json',
+                    data: {
+                        title: title,
+                        start: startDate.toISOString(),
+                        end: endDate.toISOString(),
+                        location: location,
+                        description: desc
+                    },
+                    success: function(doc) {
+                        // Remove event from calendar and hide modal
+                        calendar.fullCalendar('removeEvents', function(event) {
+                            if (event.title == title && 
+                                event.start.format('M/D/YYYY h:mm a') == start && 
+                                event.end.format('M/D/YYYY h:mm a') == end && 
+                                event.location == location && 
+                                event.description == desc) {
+                                return true;
+                            }
+                        });
+
+                        $("#eventDetailsModal").modal('hide');
+                    }
+                });
+            });
+            
+            // Called when download event button is clicked on details/delete modal
+            $('#downloadEvent').click(function(e) {
+                // Get event details to know which event to download
+                var title = document.getElementById("eventDetailsTitle").innerText;
+                var start = document.getElementById("eventDetailsStart").innerText;
+                var end = document.getElementById("eventDetailsEnd").innerText;
+                var location = document.getElementById("eventDetailsLocation").innerText;
+                var desc = document.getElementById("eventDetailsDesc").innerText;
+                
+                // Convert dates to moment form
+                var startDate = moment(start, 'MM-DD-YYYY, h:mm a');
+                var endDate = moment(end, 'MM-DD-YYYY, h:mm a');
+                
+                var event = {
+                    title: title,
+                    start: startDate.toISOString(),
+                    end: endDate.toISOString(),
+                    location: location,
+                    description: desc
+                }
+                
+                if (navigator.msSaveOrOpenBlob) { //browser is IE
+                    e.preventDefault();
+                    var blob = new Blob([JSON.stringify(event)], {type:'application/json'});
+                    navigator.msSaveOrOpenBlob(blob, 'data.json');
+                }
+                else {
+                    this.download = title + ".json";
+                    this.href = 'data:application/json,' + encodeURIComponent(JSON.stringify(event));
+                }
+                $("#eventDetailsModal").modal('hide');
+            });
+            
+            $(function(){
+                $('#addEventStart').combodate({
+                    minYear: 2015,
+                    maxYear: 2020,
+                    minuteStep: 1
+                });
+            });
+
+            $(function(){
+                $('#addEventEnd').combodate({
+                    minYear: 2015,
+                    maxYear: 2020,
+                    minuteStep: 1
+                });
+            });
+		});
+
+	</script>
 
 </head>
 <body ng-controller="mainCtrl">
-	<header class="navbar navbar-inverse">
-		<div class="container">
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-					<span class="sr-only">Toggle navigation</span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
-				<a class="navbar-brand" href="/">SWEN-344</a>
-			</div>
-			<div id="navbar" class="collapse navbar-collapse">
-				<ul class="nav navbar-nav navbar-right">
-					<li><a href="/">Home</a></li>
-					<li><a href="/stocks">Stocks</a></li>
-					<li><a href="/calendar">Calendar</a></li>
-					<li><a href="/logout">Log out</a></li>
-				</ul>
-			</div>
-		</div>
-	</header>
+    <% include navbar %>
 
-   <main>
-      <div id="calendar">
-      </div>
-   </main>
+    <main>
+        <div class="container">
+            <!-- Hide file input. Gets clicked when calendar custom button is clicked -->
+            <input type="file" accept="application/json" id="fileInput" style="display: none;" />
+            
+            <!-- Add event modal -->
+            <div class="modal fade" id="addEventModal" tabindex="-1" role="dialog" aria-labelledby="addEventModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="addEventModalLabel">Add Event</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+                                <div class="form-group">
+                                    <label for="addEventTitle" class="control-label">Event Title: *</label>
+                                    <input type="text" class="form-control" id="addEventTitle">
+                                </div>
+                                <div class="form-group">
+                                    <label for="addEventStart" class="control-label">Start: *</label>
+                                    <input type="text" class="form-control" id="addEventStart" data-format="MM-DD-YYYY h:mm a" data-template="MMM D YYYY hh:mm a" name="datetime">
+                                </div>
+                                <div class="form-group">
+                                    <label for="addEventEnd" class="control-label">End: *</label>
+                                    <input type="text" class="form-control" id="addEventEnd" data-format="MM-DD-YYYY h:mm a" data-template="MMM D YYYY hh:mm a" name="datetime">
+                                </div>
+                                <div class="form-group">
+                                    <label for="addEventLocation" class="control-label">Location:</label>
+                                    <input type="text" class="form-control" id="addEventLocation">
+                                </div>
+                                <div class="form-group">
+                                    <label for="addEventDesc" class="control-label">Description:</label>
+                                    <textarea type="text" class="form-control" id="addEventDesc"></textarea>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary" id="addEventSubmit">Add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event details/delete modal -->
+            <div class="modal fade" id="eventDetailsModal" tabindex="-1" role="dialog" aria-labelledby="eventDetailsModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="eventDetailsModalLabel">Event Details</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container">
+                                <div class="row">
+                                    <strong>Event Title: </strong><p id="eventDetailsTitle"></p>
+                                </div>
+                                <div class="row">
+                                    <strong>Start: </strong><p id="eventDetailsStart"></p>
+                                </div>
+                                <div class="row">
+                                    <strong>End: </strong><p id="eventDetailsEnd"></p>
+                                </div>
+                                <div class="row">
+                                    <strong>Location: </strong><p id="eventDetailsLocation"></p>
+                                </div>
+                                <div class="row">
+                                    <strong>Description: </strong><p id="eventDetailsDesc"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <a href="#" download="event.json" class="btn btn-primary" id="downloadEvent" style="float: left;">Download Event</a>
+                            <button type="submit" class="btn btn-danger" id="eventDetailsSubmit">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="calendar">
+            </div>
+        </div>
+    </main>
+
+    <% include chat %>
 
 </body>
 </html>

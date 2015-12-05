@@ -1,5 +1,140 @@
 /* Custom Styles Here */
 
+#messagesContainer {
+
+   position: fixed;
+   bottom: 0;
+   right: 4em;
+
+   height: 300px;
+   width: 250px;
+
+   margin: 0;
+   padding: 0;
+   padding-bottom: 1em;
+
+   overflow-y: scroll;
+
+   background: #F2F2F2;
+
+}
+
+.chatTitle {
+
+   position: fixed;
+   bottom: 300px;
+   right: 4em;
+
+   width: 250px;
+
+   cursor: pointer;
+
+   margin: 0;
+   padding: .75em 1.25em;
+
+   font-size: 1em;
+   font-weight: 500;
+
+   background: #33332D;
+   color: #fff;
+
+   -moz-box-shadow: 0 0 5px #888;
+   -webkit-box-shadow: 0 0 5px#888;
+   box-shadow: 0 0 5px #888;
+
+   border-top-left-radius: 2px;
+   border-top-right-radius: 2px;
+
+}
+
+.chatTitle:hover {
+
+   background: #333;
+
+}
+
+#messageList {
+
+   margin: 0;
+   padding: 1em 1.25em;
+
+   list-style: none;
+}
+
+.message:first-child {
+
+   margin: 0;
+
+}
+
+.message {
+
+   margin: 2em 0;
+   padding: 0;
+
+}
+
+.message > .sender {
+
+   margin: 0;
+   margin-bottom: .5em;
+   padding: 0;
+
+   font-size: .9em;
+   font-weight: 400;
+   color: #aaa;
+
+}
+
+.message > .body {
+
+   margin: 0;
+   padding: .5em .75em;
+
+   border-radius: 4px;
+
+   color: #000;
+
+   display: inline-block;
+
+}
+
+.messageMe > .body {
+
+   background: #B0E2FF;
+
+}
+
+.messageMe {
+   text-align: right;
+}
+
+.messageNotMe {
+   text-align: left;
+}
+
+.messageNotMe > .body {
+
+   background: white;
+
+}
+
+#messageTextInput {
+
+   outline: none;
+
+   margin: 0;
+   padding: .35em;
+
+   position: fixed;
+   bottom: 0;
+   right: 4em;
+
+   width: 250px;
+
+}
+
+
 /* Typeahead Styles */
 
 .typeahead,
@@ -120,3 +255,7 @@ blockquote.twitter-tweet a:focus {
 }
 
 /* End Twitter Embed Styles */
+
+.clickableEvent {
+  cursor: pointer;
+}

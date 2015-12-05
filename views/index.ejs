@@ -9,42 +9,40 @@
 </head>
 
 <body ng-controller="homeCtrl">
-	<header class="navbar navbar-inverse">
-		<div class="container">
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-					<span class="sr-only">Toggle navigation</span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
-				<a class="navbar-brand" href="/">SWEN-344</a>
-			</div>
-			<div id="navbar" class="collapse navbar-collapse">
-				<ul class="nav navbar-nav navbar-right">
-					<li><a href="/">Home</a></li>
-					<li><a href="/stocks">Stocks</a></li>
-					<li><a href="/calendar">Calendar</a></li>
-					<li><a href="/logout">Log out</a></li>
-				</ul>
-			</div>
-		</div>
-	</header>
+	<% include navbar %>
+
 	<main>
 		<div class="container">
 			<h2 ng-model="welcomeTagline">Hey, <%= user.username %></h2>
 		</div>
 
-		<div infinite-scroll="getTweets()" infinite-scroll-distance="3" infinite-scroll-disabled="infiniteScrolling">
+		<div class="container">
 			<div class="row">
-				<div class="col-md-4 col-md-offset-4">
-					<div ng-repeat="tweet in tweetsToShow | orderBy: '-id'">
-						<div ng-bind-html="tweet.oEmbed.html"></div>
-					</div>
+				<div class="col-sm-6 col-sm-offset-3">
+
+					<% include chat %>
+
+					<form class="form-horizontal">
+						<div class="form-group">
+							<textarea name="tweet" ng-model="tweetField" id="tweetField" class="form-control" placeholder="What's happening?"></textarea>
+						</div>
+						<div class="form-actions">
+							<button type="submit" ng-click="postTweet()" class="btn btn-md btn-primary">Tweet</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<div class="container" infinite-scroll="getTweets()" infinite-scroll-distance="3" infinite-scroll-disabled="infiniteScrolling">
+			<div class="row">
+				<div style="text-align: center;" ng-repeat="tweet in tweetsToShow | limitTo: limit">
+					<div ng-bind-html="tweet.oEmbed.html"></div>
 				</div>
 			</div>
 		</div>
 
 	</main>
+
 </body>
 </html>

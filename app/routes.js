@@ -10,7 +10,11 @@ module.exports = function(app, passport, Twit) {
         res.render('index.ejs', {user : req.user}); // get the user out of session and pass to template
     });
 
-    app.get('/logout', function(req, res) {
+    app.get('/messages', isLoggedIn, function(req, res) {
+        res.render('messages.ejs', {user : req.user}); // get the user out of session and pass to template
+    });
+
+    app.get('/logout', isLoggedIn, function(req, res) {
         req.logout();
         res.redirect('/');
     });
@@ -37,7 +41,7 @@ module.exports = function(app, passport, Twit) {
 
     app.get('/twitter/tweets', function(req, res) {
 
-        if (Twitter == null) {
+        if (Twitter === null) {
             Twitter = new Twit({
                 consumer_key: configAuth.twitterAuth.consumerKey,
                 consumer_secret: configAuth.twitterAuth.consumerSecret,
@@ -52,7 +56,7 @@ module.exports = function(app, passport, Twit) {
 
         Twitter.get('statuses/home_timeline', {count: 200},  function(err, data, response) {
             tweets = data;
-            if (tweets.length == 0) {
+            if (tweets.length === 0) {
                 res.send(null);
             }
             tweets.forEach(function(tweet) {
@@ -79,8 +83,25 @@ module.exports = function(app, passport, Twit) {
 
         } // end getOEmbed
 
+    });
+
+
+    app.get('/twitter/post/:tweet', function(req, res) {
+
+        if (Twitter === null) {
+            Twitter = new Twit({
+                consumer_key: configAuth.twitterAuth.consumerKey,
+                consumer_secret: configAuth.twitterAuth.consumerSecret,
+                access_token: req.user.token,
+                access_token_secret: req.user.tokenSecret
+            });
+        }
+
+        Twitter.post('statuses/update', { status: req.params.tweet }, function(err, data, response) {
+            res.send("Posted tweet");
+        });
 
     });
 
 
-} // end module.exports
+}; // end module.exports

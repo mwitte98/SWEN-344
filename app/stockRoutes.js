@@ -7,15 +7,25 @@ var http = require('http');
 
 // This will get called every time someone uses this route (/stocks)
 stocksApiRouter.use(function(req, res, next) {
-   console.log('Request made to /stocks/' + req.method); // Print out the HTTP method used -> usually GET or POST
-   next();
+    next();
 });
 
-stocksApiRouter.get('/', function(req, res) {
-   res.render('stocks.ejs');
+function isLoggedIn(req, res, next) {
+
+    // if user is authenticated in the session, carry on
+    if (req.isAuthenticated()) {
+        return next();
+    }
+
+    // if they aren't redirect them to the login page
+    res.redirect('/login');
+}
+
+stocksApiRouter.get('/', isLoggedIn, function(req, res) {
+    res.render('stocks.ejs', {user : req.user});
 });
 
-stocksApiRouter.get('/search', function(req, res) {
+stocksApiRouter.get('/search', isLoggedIn, function(req, res) {
 
 
     // This is the url we hit to get JSON back from the Markit API
@@ -39,7 +49,7 @@ stocksApiRouter.get('/search', function(req, res) {
     });
 });
 
-stocksApiRouter.get('/quote', function(req, res) {
+stocksApiRouter.get('/quote', isLoggedIn, function(req, res) {
 
     var quoteUrl = "http://dev.markitondemand.com/MODApis/Api/v2/Quote/json?symbol=" + req.query.symbol;
 
@@ -58,13 +68,15 @@ stocksApiRouter.get('/quote', function(req, res) {
     });
 });
 
-stocksApiRouter.get('/chart', function(req, res) {
+
+stocksApiRouter.get('/chart', isLoggedIn, function(req, res) {
     var today = new Date(); // Get today's date
     var todayISO = today.toISOString(); // Put date into ISO format (for Markit API)
 
     var lastYearToday = new Date();
     lastYearToday.setYear(lastYearToday.getFullYear() - 1);
     var lastYearTodayISO = lastYearToday.toISOString();
+
     var chartInput = JSON.stringify({
         Normalized: false,
         NumberOfDays: 365,

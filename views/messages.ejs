@@ -1,0 +1,39 @@
+<!doctype html>
+<html ng-app='swenApp'>
+<head>
+
+	<% include header %>
+
+	<title>Messages</title>
+
+</head>
+
+<body ng-controller="homeCtrl">
+	<% include navbar %>
+
+	<main>
+
+      <div class="container">
+			<div class="row">
+				<div class="col-sm-6 col-sm-offset-3">
+
+					Full Message History Goes Here
+
+				</div>
+			</div>
+		</div>
+
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-6 col-sm-offset-3">
+
+					<% include chat %>
+
+				</div>
+			</div>
+		</div>
+
+	</main>
+
+</body>
+</html>

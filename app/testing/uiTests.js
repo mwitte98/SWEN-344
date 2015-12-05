@@ -3,7 +3,7 @@ describe('Project Freebird', function() {
 
   /**
    * Ignore synchronization for every test.
-   * Tests might run slower but this fixes a strange bug.
+   * Tests might run slower with this, but it fixes a weird bug.
    */
   beforeEach(function() {
     browser.ignoreSynchronization = true;
@@ -12,6 +12,7 @@ describe('Project Freebird', function() {
 
   /**
    * Test to ensure we can log in to website with valid Twitter account.
+   * Uses Team Freebird's dedicated Twitter testing account @jad5366.
    */
   it('Should be able to log in', function() {
     browser.get('http://localhost:8080');
@@ -21,7 +22,6 @@ describe('Project Freebird', function() {
     username.sendKeys("jad5366");
     password.sendKeys("JohnStamos");
     element(by.id('allow')).click();
-    browser.waitForAngular();
     var username = element(by.model('welcomeTagline'));
     expect(username.getText()).toEqual('Hey, jad5366');
   });
@@ -33,59 +33,69 @@ describe('Project Freebird', function() {
    * protractor.
    */
   it('Should be able to post tweet and see it on home page', function() {
-    // first, post new tweet via twitter.com
     var tweetToPost = "Automated Tweet " + getRandomInt(0,100000);
-    browser.get('http://twitter.com');
-    element(by.id('global-new-tweet-button')).click();
-    var tweetBox = element(by.id("tweet-box-global"));
+    var tweetBox = element(by.id('tweetField'));
     tweetBox.sendKeys(tweetToPost);
-    browser.waitForAngular();
-    element(by.xpath("//div[@class='modal-tweet-form-container']//div[@class='tweet-button']/button")).click();
-    // dismiss "are you sure you want to leave?" alert displayed by Twitter
-    browser.switchTo().alert().then(
-      function (alert) {
-        alert.accept();
-      },
-      function (error) {
-      }
-    );
-    // CODE ABOVE THIS IS WORKING. CODE BELOW THIS IS NOT.
-    // Need to figure out how to test that tweet was posted within iframe
-    // browser.get('http://localhost:8080');
-    // browser.driver.wait(function() {
-    //   return browser.isElementPresent(by.css("Tweet-text.e-entry-title"));
-    // });
-    // browser.switchTo().frame("twitter-widget-0");
-    // var latestTweet = element(by.css("Tweet-text.e-entry-title")).getText();
-    // console.log(latestTweet);
+    element(by.buttonText("Tweet")).click();
   });
 
 
   /**
    * Test to ensure we can search for a stock and have it show up in the
-   * search results.
+   * search results. In this case, we search for 'GOOG' and look for
+   * 'Alphabet Inc.' in the search results.
    */
   it('Should be able to search for a stock', function() {
     browser.get("http://localhost:8080/stocks");
-    browser.waitForAngular();
     var searchBox = element(by.id('searchField'));
-    searchBox.sendKeys('Google');
+    searchBox.sendKeys('GOOG');
     element.all(by.buttonText("Search")).first().click();
-    // TODO: check search results (once stocks page is working again)
+    element.all(by.buttonText("Search")).first().click();
+    var EC = protractor.ExpectedConditions;
+    var stockName = element(by.binding("stockQuote.Name"));
+    browser.wait(EC.presenceOf(stockName), 10000);
+    expect(stockName.getText()).toEqual('Name: Alphabet Inc');
   });
 
 
   /**
-   * Test to ensure we can get a stock quote.
+   * Test to ensure the stock purchasing box is unclickable until
+   * a valid stock is being displayed.
    */
-  it('Should be able to get a stock quote', function() {
-    browser.get("http://localhost:8080/stocks");
-    browser.waitForAngular();
-    var searchBox = element(by.id('queryField'));
-    searchBox.sendKeys('GOOG');
-    element.all(by.buttonText("Search")).get(1).click();
-    // TODO: check quote results (once stocks page is working again)
-  });
+   it('Should not be able to purchase stocks until valid stock is selected', function() {
+     browser.get("http://localhost:8080/stocks");
+     var buyButton = element(by.buttonText('Buy Stock(s)'));
+     var sellButton = element(by.buttonText('Sell Stock(s)'));
+     expect(buyButton.isEnabled()).toBe(false);
+     expect(sellButton.isEnabled()).toBe(false);
+   });
+
+
+   /**
+    * Test to ensure a calendar event can be added. Adds an event
+    * taking place tomorrow and checks to see if it stays there.
+    */
+   it('Should be able to add a calendar event for tomorrow', function() {
+     var randomEventTitle = "Test Event " + getRandomInt(0,100000);
+     browser.get("http://localhost:8080/calendar");
+     element.all(by.css('.fc-future')).get(0).click();
+     var eventTitle = element(by.id('addEventTitle'));
+     var EC = protractor.ExpectedConditions;
+     browser.wait(EC.visibilityOf(eventTitle), 5000);
+     eventTitle.sendKeys('Test Event');
+     var eventLocation = element(by.id('addEventLocation'));
+     eventLocation.sendKeys('Test Location');
+     var eventDesc = element(by.id('addEventDesc'));
+     eventDesc.sendKeys('Test Description');
+     var ampm = element.all(by.css('.ampm')).get(1);
+     ampm.$('[value="pm"]').click();
+     element(by.id('addEventSubmit')).click();
+     browser.get("http://localhost:8080/calendar");
+     element(by.css('.fc-event')).click();
+     var eventTitle = element(by.id('eventDetailsTitle'));
+     browser.wait(EC.visibilityOf(eventTitle), 5000);
+     expect(eventTitle.getText()).toEqual(randomEventTitle);
+   });
 
 
   /**
@@ -93,7 +103,6 @@ describe('Project Freebird', function() {
    */
   it('Should be able to log out of the website', function() {
     browser.get("http://localhost:8080");
-    browser.waitForAngular();
     var logoutButton = element(by.css('a[href*="/logout"]'));
     logoutButton.click();
     browser.waitForAngular();
@@ -103,11 +112,39 @@ describe('Project Freebird', function() {
 
 
   /**
-   * Returns a random integer between min (inclusive) and max (inclusive)
+   * Returns a random integer between min (inclusive) and max (inclusive).
+   * Used for posting random tweets (so Twitter doesn't block us for spam).
    */
   function getRandomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
   }
+
+
+  /**
+   * Returns true when an element on the UI contains text.
+   */
+  function anyTextToBePresentInElement(elementFinder) {
+    var EC = protractor.ExpectedConditions;
+    var hasText = function() {
+      return elementFinder.getText().then(function(actualText) {
+        return actualText;
+      });
+    };
+    return EC.and(EC.presenceOf(elementFinder), hasText);
+  };
+
+
+  /**
+   * Selects an option number of a dropdown menu.
+   */
+   function selectDropdownbyNum(element, optionNum) {
+       if (optionNum){
+         var options = element.findElements(by.tagName('option'))
+           .then(function(options){
+             options[optionNum].click();
+           });
+       }
+     };
 
 
 });
