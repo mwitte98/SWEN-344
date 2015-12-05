@@ -63,7 +63,17 @@
         <p> Current Profit: ${{profit}}</p>
       </div>
 
+      <div class="well">
+        Transaction History:
+        <div ng-repeat="transaction in allStocks">
+        <p> Stock: {{transaction.stock}}<br>
+        Price: {{transaction.price}}<br>
+        Number: {{transaction.amount}}<br>
+        Date: {{transaction.date}}</p>
+        <hr>
+        </div>
     </div>
+
 
     <% include chat %>
 

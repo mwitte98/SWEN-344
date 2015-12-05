@@ -177,6 +177,7 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
     $scope.amountOwned = 0;
     $scope.profit = 0;
     $http.get("/stocks/getStock").then(function(res) {
+      $scope.allStocks = res.data;
       res.data.forEach(function(transaction) {
         console.log(transaction);
         if (transaction.stock.toLowerCase() == $scope.searchField.toLowerCase()) {
@@ -198,5 +199,7 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
 
     });
   }
+
+  getStocks();
 
 });
