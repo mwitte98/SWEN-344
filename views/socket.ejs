@@ -1,17 +1,3 @@
-<h2 class="chatTitle">Public Chat</h2>
-
-<div id="messagesContainer">
-
-   <ul id="messageList">
-   </ul>
-
-   <form id="sendMessageForm">
-      <input type="text" id="messageTextInput" placeholder="Say something...">
-   </form>
-
-</div>
-
-
 <script>
 
    var socket = io(); // defaults to try to connect to the host url (what we want)
@@ -102,17 +88,18 @@
    }
 
 
-   /* ***** Twitter Stream ***** */
+   /* ***** Twitter Socket Connection ***** */
 
    var requestTweets = "<%= requestTweets %>";
-   console.log(requestTweets);
 
-   if(requestTweets) { // We're on the index, so get some tweets, then establish a twitter stream
+   if(requestTweets == 'true') { // We're on the index, so get some tweets, then establish a twitter stream
+      console.log('Request Tweets: ' + requestTweets);
       socket.emit('request tweets');
    }
 
    socket.on('new tweet', function(data) {
       if(data.lastTweet) {
+         console.log('Last Tweet! Request Twitter Stream');
          socket.emit('request twitter stream');
       }
       else {
@@ -121,6 +108,7 @@
    });
 
    socket.on('new stream tweet', function(tweet){
+      console.log('New Stream Tweet: ' + tweet.text);
       $('#tweets-list').prepend($("<li>" + tweet.oEmbed.html + "</li>"));
    });
 
