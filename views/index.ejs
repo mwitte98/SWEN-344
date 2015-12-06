@@ -45,7 +45,10 @@
                             <h3 class="panel-title">Top 5 Stocks</h3>
                         </div>
                         <div class="panel-body">
-                            Top 5 Stocks
+                            <div ng-repeat="item in topStocks | orderBy: 'amount' : true">
+                            <p> Stock: {{item.ticker}}<br>
+                            Current amount owned: {{item.amount}}</p>
+                            </div>
                         </div>
                     </div>
                 </div>

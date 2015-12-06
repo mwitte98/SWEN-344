@@ -1,6 +1,6 @@
 var swenApp = angular.module('swenApp', ['ngResource', 'ngSanitize', 'infinite-scroll', 'highcharts-ng']);
 
-swenApp.controller('homeCtrl', function($scope, $resource, $timeout, $q, $rootScope) {
+swenApp.controller('homeCtrl', function($scope, $resource, $timeout, $q, $rootScope, $http) {
 
     $scope.postTweet = function() {
         postTweet($scope.tweetField);
@@ -17,6 +17,33 @@ swenApp.controller('homeCtrl', function($scope, $resource, $timeout, $q, $rootSc
         });
 
     }
+
+    topStocks = function() {
+      $scope.topStocks = [];
+      var flag = false;
+      $http.get('/stocks/getStock').then(function(res) {
+        res.data.forEach(function(item) {
+          $scope.topStocks.forEach(function(stock) {
+            if (item.stock.toLowerCase() == stock.ticker.toLowerCase()){
+              stock.amount += item.amount;
+              flag = true;;
+            }
+          })
+
+          if (!flag && $scope.topStocks.length < 5) {
+            $scope.topStocks.push({
+              ticker: item.stock,
+              amount: item.amount,
+              price: item.price
+            })
+          }
+        })
+      })
+
+      console.log($scope.topStocks);
+    }
+
+    topStocks();
 
 });
 
