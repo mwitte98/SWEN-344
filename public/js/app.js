@@ -140,7 +140,9 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
       stock: $scope.searchField
    };
 
-    var request = $http.post("/stocks/stockBuy", stockData);
+    var request = $http.post("/stocks/stockBuy", stockData).then(function(res) {
+      getStocks();
+    });
 };
 
   $scope.stockSell = function() {
@@ -158,7 +160,9 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
       stock: $scope.searchField
    };
 
-    var request = $http.post("/stocks/stockSell", stockData);
+    var request = $http.post("/stocks/stockSell", stockData).then(function(res) {
+      getStocks();
+    });
 };
 
   $scope.delTransactions = function() {
