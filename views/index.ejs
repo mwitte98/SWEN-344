@@ -47,7 +47,8 @@
                         <div class="panel-body">
                             <div ng-repeat="item in topStocks | orderBy: 'amount' : true">
                             <p> Stock: {{item.ticker}}<br>
-                            Current amount owned: {{item.amount}}</p>
+                            Current amount owned: {{item.amount}}<br>
+                            Current Value: {{item.cValue}}</p>
                             </div>
                         </div>
                     </div>

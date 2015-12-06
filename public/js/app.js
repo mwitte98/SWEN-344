@@ -26,6 +26,7 @@ swenApp.controller('homeCtrl', function($scope, $resource, $timeout, $q, $rootSc
           $scope.topStocks.forEach(function(stock) {
             if (item.stock.toLowerCase() == stock.ticker.toLowerCase()){
               stock.amount += item.amount;
+              stock.cValue += item.amount * item.price;
               flag = true;;
             }
           })
@@ -35,6 +36,7 @@ swenApp.controller('homeCtrl', function($scope, $resource, $timeout, $q, $rootSc
               ticker: item.stock,
               amount: item.amount,
               price: item.price
+              cValue: item.price * item.amount;
             })
           }
         })
