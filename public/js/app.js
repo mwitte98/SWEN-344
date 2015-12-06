@@ -20,9 +20,11 @@ swenApp.controller('homeCtrl', function($scope, $resource, $timeout, $q, $rootSc
 
     topStocks = function() {
       $scope.topStocks = [];
-      var flag = false;
+      var flag;
       $http.get('/stocks/getStock').then(function(res) {
         res.data.forEach(function(item) {
+          flag = false;
+          console.log(item.stock)
           $scope.topStocks.forEach(function(stock) {
             if (item.stock.toLowerCase() == stock.ticker.toLowerCase()){
               stock.amount += item.amount;
@@ -32,11 +34,12 @@ swenApp.controller('homeCtrl', function($scope, $resource, $timeout, $q, $rootSc
           })
 
           if (!flag && $scope.topStocks.length < 5) {
+            console.log("Adding: " + item.stock)
             $scope.topStocks.push({
               ticker: item.stock,
               amount: item.amount,
-              price: item.price
-              cValue: item.price * item.amount;
+              price: item.price,
+              cValue: item.price * item.amount
             })
           }
         })
