@@ -1,0 +1,23 @@
+{
+  "name": "testing",
+  "homepage": "https://github.com/mwitte98/SWEN-344",
+  "authors": [
+    "Jake Dulin <jad5366@rit.edu>"
+  ],
+  "description": "testing",
+  "main": "",
+  "moduleType": [],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "~1.4.8",
+    "angular-mocks": "~1.4.8"
+  }
+}

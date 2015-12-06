@@ -1,4 +1,4 @@
-describe('Project Freebird', function() {
+describe('UI Tests', function() {
 
 
   /**
