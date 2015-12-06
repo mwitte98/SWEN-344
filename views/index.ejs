@@ -58,7 +58,7 @@
                     <!-- Post tweet form -->
 					<form class="form-horizontal">
 						<div class="form-group">
-							<textarea name="tweet" ng-model="tweetField" id="tweetField" class="form-control" rows="4" placeholder="What's happening?"></textarea>
+							<textarea name="tweet" ng-model="tweetField" id="tweetField" class="form-control" rows="4" maxlength="140" placeholder="What's happening?"></textarea>
 						</div>
 						<div class="form-actions">
 							<button type="submit" ng-click="postTweet()" class="btn btn-md btn-primary pull-right">Post Tweet</button>

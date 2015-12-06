@@ -7,13 +7,9 @@ swenApp.controller('homeCtrl', function($scope, $resource, $timeout, $q, $rootSc
     };
 
     function postTweet(tweet) {
-
-        var resource = $resource("/twitter/post/" + tweet);
-        resource.get(function (res) {
+        var request = $http.post("/twitter/post", {tweet: tweet}).then(function(res) {
             console.log("POSTED A TWEET!");
-            $scope.tweetsToShow = [];
-            $scope.infiniteScrolling = false;
-            $scope.getTweets();
+            $scope.tweetField = '';
         });
 
     }

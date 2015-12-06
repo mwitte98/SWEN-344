@@ -2,6 +2,7 @@ module.exports = function(app, passport, Twit, io) {
 
     var configAuth = require('../app/config/auth.js');
     var moment = require('moment');
+    var Twitter = null;
 
     var TWITTER_EVENT_HANDLERS_SET = false;
 
@@ -33,12 +34,14 @@ module.exports = function(app, passport, Twit, io) {
 
       // Get tweets from twitter and establish a stream through socket
 
-      var Twitter = new Twit({
-         consumer_key: configAuth.twitterAuth.consumerKey,
-         consumer_secret: configAuth.twitterAuth.consumerSecret,
-         access_token: req.user.token,
-         access_token_secret: req.user.tokenSecret
-      });
+      if (Twitter === null) {
+         Twitter = new Twit({
+             consumer_key: configAuth.twitterAuth.consumerKey,
+             consumer_secret: configAuth.twitterAuth.consumerSecret,
+             access_token: req.user.token,
+             access_token_secret: req.user.tokenSecret
+         });
+      }
 
       if(!TWITTER_EVENT_HANDLERS_SET) { // We haven't yet set up the twitter/socket event handlers (first time to index page)
 
@@ -126,7 +129,7 @@ module.exports = function(app, passport, Twit, io) {
         res.redirect('/login');
     }
 
-    app.get('/twitter/post/:tweet', function(req, res) {
+    app.post('/twitter/post', function(req, res) {
 
         if (Twitter === null) {
             Twitter = new Twit({
@@ -137,7 +140,7 @@ module.exports = function(app, passport, Twit, io) {
             });
         }
 
-        Twitter.post('statuses/update', { status: req.params.tweet }, function(err, data, response) {
+        Twitter.post('statuses/update', { status: req.body.tweet }, function(err, data, response) {
             res.send("Posted tweet");
         });
 
