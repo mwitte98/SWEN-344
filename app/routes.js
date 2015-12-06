@@ -4,6 +4,8 @@ module.exports = function(app, passport, Twit, io) {
     var moment = require('moment');
     var Twitter = null;
 
+    // After the user goes to the index page for the first time, this is set to true
+    // So that we don't create new socket handlers every time the '/' route is hit
     var TWITTER_EVENT_HANDLERS_SET = false;
 
     app.get('/login', function(req, res) {
@@ -45,7 +47,7 @@ module.exports = function(app, passport, Twit, io) {
 
       if(!TWITTER_EVENT_HANDLERS_SET) { // We haven't yet set up the twitter/socket event handlers (first time to index page)
 
-         io.sockets.on('connection', function (socket) {
+         io.sockets.on('connection', function(socket) {
 
             socket.on('request tweets', function() { // User is on the home page on the front-end
 
@@ -55,19 +57,27 @@ module.exports = function(app, passport, Twit, io) {
 
                Twitter.get('statuses/home_timeline', {count: TWEET_COUNT}, function(err, tweets, response) {
                   if (err) {
-                     socket.emit('twitter api error');
+                     socket.emit('twitter api error', {error: "HomeTimeline Error"});
                   }
                   else {
                      console.log("Got Home Timeline Tweets");
                      tweets.forEach(function(tweet, index) {
                         Twitter.get('statuses/oembed', {id: tweet.id_str}, function(err, oEmbedData, response) {
-                           tweet.oEmbed = oEmbedData;
-                           if( index == TWEET_COUNT - 1 ) { // if this is the last tweet that we got from the API, send a flag for the front-end
-                              console.log('Last Tweet on Server');
-                              socket.emit('new tweet', {tweet: tweet, lastTweet: true});
+
+                           if( err ) {
+                              socket.emit('twitter api error', {error: "oEmbed Error"});
                            }
                            else {
-                              socket.emit('new tweet', {tweet: tweet, lastTweet: false});
+
+                              tweet.oEmbed = oEmbedData;
+                              if( index == TWEET_COUNT - 1 ) { // if this is the last tweet that we got from the API, send a flag for the front-end
+                                 console.log('Last Tweet on Server');
+                                 socket.emit('new tweet', {tweet: tweet, lastTweet: true});
+                              }
+                              else {
+                                 socket.emit('new tweet', {tweet: tweet, lastTweet: false});
+                              }
+
                            }
 
                         });
@@ -86,16 +96,29 @@ module.exports = function(app, passport, Twit, io) {
                var stream = Twitter.stream('user');
 
                stream.on('tweet', function(tweet) {
-                  console.log("New tweet!");
+                  console.log("New tweet: " + tweet.id);
                   Twitter.get('statuses/oembed', {id: tweet.id_str}, function(err, data, response) {
                      if(err) {
-                        console.log('Stream Error: ' + err);
+                        socket.emit('twitter api error', {error: "oEmbed Error"});
+                        stream.stop();
                      }
                      else {
                         tweet.oEmbed = data;
                         socket.emit('new stream tweet', tweet);
                      }
                   });
+               });
+
+               stream.on('connect', function() {
+                  console.log('Attempting to Connect to Twitter...');
+               });
+
+               stream.on('connected', function() {
+                  console.log('Twitter Stream Connected');
+               });
+
+               stream.on('limit', function() {
+                  console.log('******* Twitter Rate Limit Hit *******');
                });
 
             });
