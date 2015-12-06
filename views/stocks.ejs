@@ -104,12 +104,11 @@
 
          source: function(query, syncResults, asyncResults) {
             return $.ajax({
-               url: "/stocks/search", // CONSIDER MAKING A DIRECT CALL TO THE MARKIT API -> JSONP INSTEAD OF JSON
+               url: "/stocks/search",
                type: 'GET',
                data: {search: query},
                dataType: 'json',
-               success: function (json) { // THIS MAY THROW AN ERROR IF TOO MANY REQS ARE MADE PER SECOND
-                  console.log("AJAX Res: " + json);
+               success: function (json) { // THIS WILL NOT RETURN A SUGGESTION IF TOO MANY HITS TO THE API ARE MADE
                   return asyncResults(json);
                }
             });
@@ -117,7 +116,6 @@
       });
 
       $('.typeahead').bind('typeahead:select', function(ev, suggestion) {
-         console.log('Selection: ' + suggestion["Symbol"]);
          // Angular needs to be kept up to date, so when the user presses enter to select a suggestion, set the scope var to reflect this
          angular.element(document.getElementById('mainCtrl')).scope().searchField = suggestion["Symbol"];
       });

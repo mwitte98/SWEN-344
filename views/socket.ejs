@@ -93,13 +93,11 @@
    var requestTweets = "<%= requestTweets %>";
 
    if(requestTweets == 'true') { // We're on the index, so get some tweets, then establish a twitter stream
-      console.log('Request Tweets: ' + requestTweets);
       socket.emit('request tweets');
    }
 
    socket.on('new tweet', function(data) {
       if(data.lastTweet) {
-         console.log('Last Tweet! Request Twitter Stream');
          socket.emit('request twitter stream');
       }
       else {
@@ -108,11 +106,10 @@
    });
 
    socket.on('new stream tweet', function(tweet){
-      console.log('New Stream Tweet: ' + tweet.text);
       $('#tweets-list').prepend($("<li>" + tweet.oEmbed.html + "</li>"));
    });
 
-   socket.on('twitter api error', function() {
+   socket.on('twitter api error', function(data) {
       $('#tweets-list').hide();
       $('#twitter-api-error').show();
    });

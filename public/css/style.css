@@ -1,3 +1,4 @@
+
 /* Twitter Styles */
 
 .twitterContainer {
@@ -66,6 +67,8 @@
    overflow-y: scroll;
 
    background: #F2F2F2;
+
+   z-index: 100;
 
 }
 
