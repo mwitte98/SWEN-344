@@ -95,6 +95,10 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
   }
 
   $scope.stockBuy = function() {
+    if ($scope.purchaseAmount < 0) {
+      return;
+    }
+
     console.log($scope.stockQuote.LastPrice);
     console.log($scope.purchaseAmount);
     $scope.amountOwned += $scope.purchaseAmount;
@@ -113,7 +117,7 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
     console.log($scope.stockQuote.LastPrice);
     console.log($scope.sellAmount);
 
-    if ($scope.sellAmount > $scope.amountOwned) {
+    if ($scope.sellAmount > $scope.amountOwned || $scope.sellAmount < 0) {
       $scope.sellError = true;
       return;
     }
@@ -128,6 +132,12 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
 
     var request = $http.post("/stocks/stockSell", stockData);
 };
+
+  $scope.delTransactions = function() {
+    $http.get("/stocks/delTrans").then(function(res) {
+      getStocks();
+    });
+  }
 
   $scope.addNote = function() {
     var noteData = {
@@ -144,9 +154,11 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
     $scope.stocks = [];
     $scope.amountOwned = 0;
     $scope.profit = 0;
+    $scope.totalProfit = 0;
     $http.get("/stocks/getStock").then(function(res) {
       $scope.allStocks = res.data;
       res.data.forEach(function(transaction) {
+        $scope.totalProfit += (transaction.amount * transaction.price);
         if ($scope.searchField) {
           if (transaction.stock.toLowerCase() == $scope.searchField.toLowerCase()) {
             $scope.profit += (transaction.amount * transaction.price);

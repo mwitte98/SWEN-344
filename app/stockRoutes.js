@@ -115,6 +115,9 @@ stocksApiRouter.get('/chart', isLoggedIn, function(req, res) {
 });
 
 stocksApiRouter.post('/stockBuy', function(req, res) {
+    if (req.body.buyAmount < 0) {
+        res.send("Error, amount negative.")
+    }
 
     var newTransaction = Transaction({
         price: req.body.lastPrice,
@@ -140,6 +143,10 @@ stocksApiRouter.post('/stockBuy', function(req, res) {
 })
 
 stocksApiRouter.post('/stockSell', function(req, res) {
+    if (req.body.sellAmount < 0) {
+        res.send("Error, amount negative.")
+    }
+
     var newTransaction = Transaction({
         price: req.body.lastPrice,
         date: req.body.date,
@@ -187,6 +194,20 @@ stocksApiRouter.post("/addNote", function(req, res) {
         });
     })
     res.send("Success: Note Added!")
+})
+
+stocksApiRouter.get('/delTrans', function(req, res) {
+    var newTransaction = Transaction({
+
+    })
+    
+    var stocks = [];
+    newTransaction.save(function(err) {
+        User.findOneAndUpdate({ 'twitterID': req.user.twitterID }, {$set: {'stocks': stocks}}, { new: true}, function(err, updatedUser) {
+            if (err) throw err;
+        });
+    })
+    res.send("Success: Transactions deleted");
 })
 
 stocksApiRouter.get('/getStock', function(req, res) {
