@@ -24,7 +24,6 @@ swenApp.controller('homeCtrl', function($scope, $resource, $timeout, $q, $rootSc
       $http.get('/stocks/getStock').then(function(res) {
         res.data.forEach(function(item) {
           flag = false;
-          console.log(item.stock)
           $scope.topStocks.forEach(function(stock) {
             if (item.stock.toLowerCase() == stock.ticker.toLowerCase()){
               stock.amount += item.amount;
@@ -34,7 +33,6 @@ swenApp.controller('homeCtrl', function($scope, $resource, $timeout, $q, $rootSc
           })
 
           if (!flag && $scope.topStocks.length < 5) {
-            console.log("Adding: " + item.stock)
             $scope.topStocks.push({
               ticker: item.stock,
               amount: item.amount,
@@ -45,7 +43,6 @@ swenApp.controller('homeCtrl', function($scope, $resource, $timeout, $q, $rootSc
         })
       })
 
-      console.log($scope.topStocks);
     }
 
     topStocks();
@@ -85,6 +82,9 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
     getStocks();
     getNotes();
     var chartRequest = $http.get(chartUrl).then( function(response) {
+      if (response.data == "Error") {
+        return;
+      }
 
       $scope.stockQuoteChart = response.data;
 
@@ -131,8 +131,6 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
       return;
     }
 
-    console.log($scope.stockQuote.LastPrice);
-    console.log($scope.purchaseAmount);
     $scope.amountOwned += $scope.purchaseAmount;
 
     var stockData = {
@@ -146,8 +144,6 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
 };
 
   $scope.stockSell = function() {
-    console.log($scope.stockQuote.LastPrice);
-    console.log($scope.sellAmount);
 
     if ($scope.sellAmount > $scope.amountOwned || $scope.sellAmount < 0) {
       $scope.sellError = true;

@@ -47,7 +47,11 @@ stocksApiRouter.get('/search', isLoggedIn, function(req, res) {
         response.on("end", function (err) {
             // Finished transferring data, dump the raw data
             //console.log("Search Buffer: " + buffer);
-            res.send(JSON.parse(buffer));
+            try{
+                res.send(JSON.parse(buffer));
+            } catch(err) {
+                res.send("Error");
+            }
         });
     });
 });
@@ -66,7 +70,11 @@ stocksApiRouter.get('/quote', isLoggedIn, function(req, res) {
 
         response.on("end", function (err) {
             //console.log("Quote Buffer: " + buffer);
-            res.send(JSON.parse(buffer));
+            try{
+                res.send(JSON.parse(buffer));
+            } catch(err) {
+                res.send("Error");
+            }
         });
     });
 });
@@ -100,15 +108,19 @@ stocksApiRouter.get('/chart', isLoggedIn, function(req, res) {
     var chartUrl = "http://dev.markitondemand.com/MODApis/Api/v2/InteractiveChart/json?parameters=" + chartInput;
 
     var request = http.get(chartUrl, function (response) {
-
         var buffer = "", data, route;
 
         response.on("data", function (chunk) {
             buffer += chunk;
         });
 
+
         response.on("end", function (err) {
-            res.send(JSON.parse(buffer));
+            try{ 
+                res.send(JSON.parse(buffer));  
+            } catch(err) {
+                res.send("Error");
+            }            
         });
     });
 
@@ -200,7 +212,7 @@ stocksApiRouter.get('/delTrans', function(req, res) {
     var newTransaction = Transaction({
 
     })
-    
+
     var stocks = [];
     newTransaction.save(function(err) {
         User.findOneAndUpdate({ 'twitterID': req.user.twitterID }, {$set: {'stocks': stocks}}, { new: true}, function(err, updatedUser) {
