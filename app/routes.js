@@ -2,7 +2,6 @@ module.exports = function(app, passport, Twit, io) {
 
     var configAuth = require('../app/config/auth.js');
     var moment = require('moment');
-    var Twitter = null;
 
     // After the user goes to the index page for the first time, this is set to true
     // So that we don't create new socket handlers every time the '/' route is hit
@@ -36,14 +35,12 @@ module.exports = function(app, passport, Twit, io) {
 
       // Get tweets from twitter and establish a stream through socket
 
-      if (Twitter === null) {
-         Twitter = new Twit({
-             consumer_key: configAuth.twitterAuth.consumerKey,
-             consumer_secret: configAuth.twitterAuth.consumerSecret,
-             access_token: req.user.token,
-             access_token_secret: req.user.tokenSecret
-         });
-      }
+      var Twitter = new Twit({
+          consumer_key: configAuth.twitterAuth.consumerKey,
+          consumer_secret: configAuth.twitterAuth.consumerSecret,
+          access_token: req.user.token,
+          access_token_secret: req.user.tokenSecret
+      });
 
       if(!TWITTER_EVENT_HANDLERS_SET) { // We haven't yet set up the twitter/socket event handlers (first time to index page)
 
@@ -154,14 +151,12 @@ module.exports = function(app, passport, Twit, io) {
 
     app.post('/twitter/post', function(req, res) {
 
-        if (Twitter === null) {
-            Twitter = new Twit({
-                consumer_key: configAuth.twitterAuth.consumerKey,
-                consumer_secret: configAuth.twitterAuth.consumerSecret,
-                access_token: req.user.token,
-                access_token_secret: req.user.tokenSecret
-            });
-        }
+         var Twitter = new Twit({
+             consumer_key: configAuth.twitterAuth.consumerKey,
+             consumer_secret: configAuth.twitterAuth.consumerSecret,
+             access_token: req.user.token,
+             access_token_secret: req.user.tokenSecret
+         });
 
         Twitter.post('statuses/update', { status: req.body.tweet }, function(err, data, response) {
             res.send("Posted tweet");
