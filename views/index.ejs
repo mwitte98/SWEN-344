@@ -48,7 +48,7 @@
                             <div ng-repeat="item in topStocks | orderBy: 'amount' : true">
                             <p> Stock: {{item.ticker}}<br>
                             Current amount owned: {{item.amount}}<br>
-                            Current Value: {{item.cValue}}</p>
+                            Current Value: {{item.cValue.toFixed(2)}}</p>
                             </div>
                         </div>
                     </div>

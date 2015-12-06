@@ -51,7 +51,7 @@
     <div class="col-sm-4 col-offset-sm-1">
       <div class="well">
         <p> Stocks owned: {{amountOwned}}</p> 
-        <p> Total Profit across all stocks: ${{totalProfit}}</p>
+        <p> Total Profit across all stocks: ${{totalProfit.toFixed(2)}}</p>
         <form ng-submit="stockBuy()">
           <input type="number" ng-model="purchaseAmount" ng-disabled="disable">
           <input type="submit" class="btn btn-small btn-primary" value="Buy Stock(s)"ng-disabled="disable">
@@ -60,7 +60,7 @@
           <input type="number" ng-model="sellAmount" ng-disabled="disable">
           <input type="submit" class="btn btn-small btn-primary" value="Sell Stock(s)"ng-disabled="disable">
         </form>
-        <p> Current Stock Profit: ${{profit}}</p>
+        <p> Current Stock Profit: ${{profit.toFixed(2)}}</p>
       </div>
 
       <div class="well">
@@ -77,7 +77,7 @@
         <button ng-click="delTransactions()" class="btn btn-small btn-primary">Delete History</button>
         <div ng-repeat="transaction in allStocks">
         <p> Stock: {{transaction.stock}}<br>
-        Price: {{transaction.price}}<br>
+        Price: ${{transaction.price.toFixed(2)}}<br>
         Number: {{transaction.amount}}<br>
         Date: {{transaction.date}}</p>
         <hr>

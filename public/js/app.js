@@ -1,6 +1,6 @@
 var swenApp = angular.module('swenApp', ['ngResource', 'ngSanitize', 'infinite-scroll', 'highcharts-ng']);
 
-swenApp.controller('homeCtrl', function($scope, $resource, $timeout, $q, $rootScope, $http) {
+swenApp.controller('homeCtrl', function($scope, $http) {
 
     $scope.postTweet = function() {
         postTweet($scope.tweetField);
