@@ -25,7 +25,7 @@ function isLoggedIn(req, res, next) {
 }
 
 stocksApiRouter.get('/', isLoggedIn, function(req, res) {
-    res.render('stocks.ejs', {user : req.user});
+    res.render('stocks.ejs', {user : req.user, requestTweets: false});
 });
 
 stocksApiRouter.get('/search', isLoggedIn, function(req, res) {
@@ -158,7 +158,7 @@ stocksApiRouter.post('/stockSell', function(req, res) {
     })
 
     res.send("Success: Stock transaction saved");
-    
+
 })
 
 stocksApiRouter.post("/addNote", function(req, res) {

@@ -8,7 +8,7 @@ calApiRouter.use(function(req, res, next){
 });
 
 calApiRouter.get('/', isLoggedIn, function(req, res) {
-    res.render('calendar', {user : req.user});
+    res.render('calendar', {user : req.user, requestTweets: false});
 });
 
 function isLoggedIn(req, res, next) {

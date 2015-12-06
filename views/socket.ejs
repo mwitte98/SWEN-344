@@ -101,4 +101,33 @@
       return result;
    }
 
+
+   /* ***** Twitter Stream ***** */
+
+   var requestTweets = "<%= requestTweets %>";
+   console.log(requestTweets);
+
+   if(requestTweets) { // We're on the index, so get some tweets, then establish a twitter stream
+      socket.emit('request tweets');
+   }
+
+   socket.on('new tweet', function(data) {
+      if(data.lastTweet) {
+         socket.emit('request twitter stream');
+      }
+      else {
+         $('#tweets-list').append($("<li>" + data.tweet.oEmbed.html + "</li>"));
+      }
+   });
+
+   socket.on('new stream tweet', function(tweet){
+      $('#tweets-list').prepend($("<li>" + tweet.oEmbed.html + "</li>"));
+   });
+
+   socket.on('twitter api error', function() {
+      $('#tweets-list').hide();
+      $('#twitter-api-error').show();
+   });
+
+
 </script>

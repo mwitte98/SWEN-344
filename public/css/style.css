@@ -1,3 +1,25 @@
+/* Twitter Styles */
+
+.twitterContainer {
+
+   margin-top: 10em;
+
+}
+
+#tweets-list {
+   list-style: none;
+}
+
+#twitter-api-error {
+   display: none;
+
+   margin: 1em;
+   padding: 0;
+
+   text-align: center;
+
+}
+
 /* Message History Styles */
 
 .message-history-title {

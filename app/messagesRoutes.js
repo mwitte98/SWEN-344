@@ -11,7 +11,7 @@ messagesApiRouter.get('/', isLoggedIn, function(req, res) {
    Message.find({}, { _id: false, sender: true, body: true }, function(err, messages) {
      if (err) throw err;
 
-     res.render('messages.ejs', {user : req.user, messages: messages}); // get the user out of session and pass to template
+     res.render('messages.ejs', {user : req.user, messages: messages, requestTweets: false}); // get the user out of session and pass to template
 
    }).lean();
 

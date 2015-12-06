@@ -1,6 +1,7 @@
 var Message = require('../models/message');
+var configAuth = require('./auth.js');
 
-module.exports = function(io) {
+module.exports = function(io, Twitter) {
 
    io.on('connection', function(socket) {
 
@@ -14,7 +15,7 @@ module.exports = function(io) {
      }).lean();
 
 
-      // ***** Socket Events *****
+      // ***** New Message Event *****
 
       socket.on('new message', function(message) { // user sent a message in the chat
 
@@ -39,7 +40,6 @@ module.exports = function(io) {
          });
 
       });
-
 
    });
 

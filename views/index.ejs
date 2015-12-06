@@ -10,7 +10,6 @@
 
 <body ng-controller="homeCtrl">
 	<% include navbar %>
-    <% include chat %>
 
 	<main>
 		<div class="container">
@@ -39,7 +38,7 @@
                             <% } %>
                         </div>
                     </div>
-                    
+
                     <!-- Top 5 Stocks -->
                     <div class="panel panel-default">
                         <div class="panel-heading">
@@ -50,29 +49,26 @@
                         </div>
                     </div>
                 </div>
-                
+
 				<div class="col-xs-offset-1 col-xs-6">
                     <!-- Post tweet form -->
 					<form class="form-horizontal">
 						<div class="form-group">
-							<textarea name="tweet" ng-model="tweetField" id="tweetField" class="form-control" placeholder="What's happening?"></textarea>
+							<textarea name="tweet" ng-model="tweetField" id="tweetField" class="form-control" rows="4" placeholder="What's happening?"></textarea>
 						</div>
 						<div class="form-actions">
-							<button type="submit" ng-click="postTweet()" class="btn btn-md btn-primary">Tweet</button>
+							<button type="submit" ng-click="postTweet()" class="btn btn-md btn-primary pull-right">Post Tweet</button>
 						</div>
 					</form>
-                    
-                    <!-- Twitter feed -->
-                    <div infinite-scroll="getTweets()" infinite-scroll-distance="3" infinite-scroll-disabled="infiniteScrolling">
-                        <div class="row">
-                            <div ng-repeat="tweet in tweetsToShow | limitTo: limit">
-                                <div ng-bind-html="tweet.oEmbed.html"></div>
-                            </div>
-                        </div>
-                    </div>
+
+					<% include twitter %>
+
 				</div>
 			</div>
 		</div>
+
+	<% include socket %>
+
 	</main>
 
 </body>

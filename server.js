@@ -9,6 +9,8 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
 
+var Twit = require('twit');
+
 // ********** Socket IO Setup **********
 
 var server = require('http').Server(app);
@@ -17,8 +19,6 @@ var io = require('socket.io')(server);
 require('./app/config/socket')(io);
 
 // ********** End Socket IO Setup **********
-
-var Twit = require('twit');
 
 // Config database connection
 mongoose.connect('mongodb://localhost/SWEN344');
@@ -39,7 +39,7 @@ app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
 
-require('./app/routes.js')(app, passport, Twit);
+require('./app/routes.js')(app, passport, Twit, io);
 
 // PRIVATE API routes
 app.use('/stocks', require('./app/stockRoutes.js'));

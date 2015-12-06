@@ -2,55 +2,12 @@ var swenApp = angular.module('swenApp', ['ngResource', 'ngSanitize', 'infinite-s
 
 swenApp.controller('homeCtrl', function($scope, $resource, $timeout, $q, $rootScope) {
 
-    $scope.limit = 0;
-    $scope.tweetsToShow = [];
-    $scope.infiniteScrolling = false;
-
-    $scope.getTweets = function() {
-        
-        $scope.limit += 20;
-        
-        if ($scope.tweetsToShow.length == 0) {
-            var deferred = $q.defer();
-            var resource = $resource("/twitter/tweets");
-            resource.query(function (res) {
-                $scope.tweetsToShow = res;
-                
-                if ($scope.tweetsToShow == null) {
-                    alert("You have temporarily hit your Twitter request limit. Please try again in 15 minutes.");
-                    return;
-                }
-                
-                $scope.tweetsToShow.sort(function(a, b) {
-                    return b.id - a.id;
-                });
-                
-                console.log("*GET TWEETS* tweetsToShow length: " + $scope.tweetsToShow.length);
-                
-                $timeout(function() {
-                    twttr.widgets.load();
-                }, 30);
-                
-                deferred.resolve(res);
-                $rootScope.$$phase || $rootScope.$apply();
-            });
-        }
-        else {
-            if ($scope.limit >= $scope.tweetsToShow.length) {
-                $scope.infiniteScrolling = true;
-            }
-            $timeout(function() {
-                twttr.widgets.load();
-            }, 30);
-        }
-    };
-    
     $scope.postTweet = function() {
         postTweet($scope.tweetField);
-    }
+    };
 
     function postTweet(tweet) {
-    
+
         var resource = $resource("/twitter/post/" + tweet);
         resource.get(function (res) {
             console.log("POSTED A TWEET!");
@@ -58,7 +15,7 @@ swenApp.controller('homeCtrl', function($scope, $resource, $timeout, $q, $rootSc
             $scope.infiniteScrolling = false;
             $scope.getTweets();
         });
-    
+
     }
 
 });
@@ -76,7 +33,7 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
     $scope.stocksOwned = 0;
     getStockQuote($scope.searchField);
     getChartQuote($scope.searchField);
-   }
+};
 
    function getStockQuote(symbol) {
 
@@ -119,7 +76,7 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
               text: null
           },
           useHighStocks: true
-      }
+      };
 
       var chartData = [];
 
@@ -147,10 +104,10 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
       date: new Date(),
       buyAmount: $scope.purchaseAmount,
       stock: $scope.searchField
-    }
+   };
 
     var request = $http.post("/stocks/stockBuy", stockData);
-  }
+};
 
   $scope.stockSell = function() {
     console.log($scope.stockQuote.LastPrice);
@@ -167,21 +124,21 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
       date: new Date(),
       sellAmount: $scope.sellAmount,
       stock: $scope.searchField
-    }
+   };
 
     var request = $http.post("/stocks/stockSell", stockData);
-  }
+};
 
   $scope.addNote = function() {
     var noteData = {
       desc: $scope.noteDesc,
       stock: $scope.searchField
-    }
+   };
 
     var request = $http.post("/stocks/addNote", noteData).then(function(res) {
       getNotes();
     });
-  }
+};
 
   getStocks = function() {
     $scope.stocks = [];
@@ -199,10 +156,10 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
         }
       });
     });
-  }
+};
 
   getNotes = function() {
-    $scope.displayNote = ''
+    $scope.displayNote = '';
     $http.get("/stocks/getNotes").then(function(res) {
       res.data.forEach(function(note) {
         if ($scope.searchField) {
@@ -210,9 +167,9 @@ swenApp.controller('mainCtrl', function($scope, $http) { // ***** CHANGE THIS TO
             $scope.displayNote = note.desc;
           }
         }
-      })
-    })
-  }
+     });
+  });
+  };
 
   getStocks();
   getNotes();
